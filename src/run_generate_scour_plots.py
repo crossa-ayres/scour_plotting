@@ -60,6 +60,7 @@ if __name__ == "__main__":
         wse_data = structure_data[11]
         pierdata_df = pd.DataFrame(pier_data_dict).T
         st.subheader("Structure and Scour Data")
+        st.write("The table below shows the structure and scour data that will be used to generate the scour plots. To modify the data, please do so from the scour workbook and re-upload. Data can not be modified within this table.")
         st.dataframe(pierdata_df,use_container_width=True)
 
         st.header("Scour Figures by Recurrence Interval")
@@ -87,6 +88,7 @@ if __name__ == "__main__":
             st.download_button(label=f"Download {year[-1]} Figure", data=figure, file_name=f"scour_plot_{year[-1]}.png")
             
         st.header("Scour Summary Figure")
+        st.write("The figure below shows the scour data for all recurrence intervals in a single plot. You can download this figure by clicking the download button below the plot.")
         summary_figure = generate_summary_figure(pier_data_dict, 
                             individual_pier_ids,
                             bridge_low_chord, 
