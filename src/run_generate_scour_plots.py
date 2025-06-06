@@ -56,8 +56,8 @@ if __name__ == "__main__":
         abut_stat = structure_data[10]
         wse_data = structure_data[11]
         pierdata_df = pd.DataFrame(pier_data_dict).T
-        st.dataframe(pierdata_df)
-        
+        st.dataframe(pierdata_df,use_container_width=True)
+
 
         for year in recurrence_data:
             figure = generate_figure(pier_data_dict, 
@@ -73,7 +73,7 @@ if __name__ == "__main__":
                                 abut_stat, wse_data, 
                                 year)
             st.pyplot(figure)
-            st.write(f"Recurrence Interval: {year[-1]} years")
+            st.write(f"Recurrence Interval: {year[-1]}")
             #allow user to download the figure
             buf = io.BytesIO()
             figure.savefig(buf, format="png")
