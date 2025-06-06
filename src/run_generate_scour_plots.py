@@ -62,7 +62,8 @@ if __name__ == "__main__":
         st.subheader("Structure and Scour Data")
         st.dataframe(pierdata_df,use_container_width=True)
 
-        st.header("Scour Data Figures")
+        st.header("Scour Figures by Recurrence Interval")
+        st.write("The figures below show the scour data for each recurrence interval. You can download each figure by clicking the download button below each plot.")
         for year in recurrence_data:
             figure = generate_figure(pier_data_dict, 
                                 individual_pier_ids,
