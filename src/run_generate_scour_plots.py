@@ -23,6 +23,7 @@ if __name__ == "__main__":
         st.header("Upload Files")
         st.write("Please upload the scour data file.")
         bridge_data = st.file_uploader("Choose a file")
+        st.write("To make changes to the data being plotted, please modifiy the information in the scour worksheet and re-upload the data.")
 
         
    
@@ -79,7 +80,7 @@ if __name__ == "__main__":
             figure.savefig(buf, format="png")
             buf.seek(0)
             figure = buf.getvalue()
-            st.download_button(label="Download Figure", data=figure, file_name=f"scour_plot_{year[-1]}.png")
+            st.download_button(label=f"Download {year[-1]} Figure", data=figure, file_name=f"scour_plot_{year[-1]}.png")
             
             
         summary_figure = generate_summary_figure(pier_data_dict, 
