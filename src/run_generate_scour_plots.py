@@ -55,7 +55,10 @@ if __name__ == "__main__":
         abt_scour_elev = structure_data[9]
         abut_stat = structure_data[10]
         wse_data = structure_data[11]
-        st.table(pier_data_dict)
+        pierdata_df = pd.DataFrame(pier_data_dict).T
+        st.table(pierdata_df)
+
+
         for year in recurrence_data:
             figure = generate_figure(pier_data_dict, 
                                 individual_pier_ids,
