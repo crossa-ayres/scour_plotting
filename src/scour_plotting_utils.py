@@ -16,6 +16,24 @@ def recurrence_txt():
     return [flags_100yr, flags_500yr]
 
 def generate_pier_scour_df(bridge_data):
+    """
+    Generates a dictionary of pier data and other related data from the bridge data DataFrame.
+    Args:
+        bridge_data (DataFrame): DataFrame containing bridge data.
+    Returns:
+        list: A list containing the pier data dictionary, 
+            individual pier IDs, 
+            low chord data, 
+            high chord data, 
+            ground line data, 
+            scour data DataFrame, 
+            bank stations, 
+            lateral stability, 
+            long term degradation, 
+            abutment scour elevation, 
+            abutment station data, 
+            and water surface elevation data.
+    """
     
     pier_data_dict = {}
     individual_pier_ids = []
@@ -66,11 +84,25 @@ def generate_pier_scour_df(bridge_data):
 
 
 def calculate_scour_data(pier_data_dict,pier_id, scour_data_df,ground_line, year):
+    """
+    Calculates the scour data for a given pier based on its ID and the year.
+    Args:
+        pier_data_dict (dict): Dictionary containing pier data.
+        pier_id (str): ID of the pier.
+        scour_data_df (DataFrame): DataFrame containing scour data.
+        ground_line (DataFrame): DataFrame containing ground line data.
+        year (list): List containing recurrence interval data for the year.
+    Returns:
+        list: List containing the calculated scour data for the pier.
+    """
     cs_ltd = year[0]
     local_scour = year[1]
     scour_data_array = []
     pier_data = pier_data_dict[pier_id]
-
+    # calculate the left, right, and center stations based on the pier data and the local scour data
+    # The left and right stations are calculated as 2 times the local scour depth away from the pier center line station
+    # The center station is the pier center line station
+    # The left and right stations are used to find the closest stations in the ground line to the scour holes plotted at each pier
     left = pier_data['Bent CL Sta'] - 2*(scour_data_df[cs_ltd].values[0] - (scour_data_df[cs_ltd].values[0] - pier_data[local_scour]))
     right = pier_data['Bent CL Sta'] + 2*(scour_data_df[cs_ltd].values[0] - (scour_data_df[cs_ltd].values[0] - pier_data[local_scour]))
     center = pier_data['Bent CL Sta']
@@ -89,11 +121,23 @@ def calculate_scour_data(pier_data_dict,pier_id, scour_data_df,ground_line, year
     
     
     return scour_data_array
+
+
 def calculate_pier_data(pier_data_dict,pier_id):
+    """
+    Calculates the plotting data for a pier based on its ID.
+    Args:
+        pier_data_dict (dict): Dictionary containing pier data.
+        pier_id (str): ID of the pier.
+    Returns:
+        tuple: Two lists containing the plotting data for the left and right sides of the pier.
+    """
+    # Initialize lists to hold the plotting data for the left and right sides of the pier
     pier_plotting_data_left = []
     pier_plotting_data_right = []
     pier_data = pier_data_dict[pier_id]
     #x1, y1
+    # Calculate the plotting data for the left and right sides of the pier by taking the pier data and calculating the coordinates based on the pier stem top width, bottom width, footing cap width, and footing width.
     pier_plotting_data_left.append([pier_data['Bent CL Sta']-(pier_data['Pier Stem Top Width']/2),pier_data['Low Chord Elev']])
     #x2, y2
     pier_plotting_data_left.append([pier_data['Bent CL Sta']-(pier_data['Pier Stem Bottom Width']/2),(pier_data['Bottom of Footing Elev'] + pier_data['Footing Cap Height'] + pier_data['Footing Height'])])
@@ -140,14 +184,30 @@ def generate_figure(pier_data_dict,
                           year
                           ):
     
+    """
+    Generates a figure for scour data for a specific recurrence interval.
+    Args:
+        pier_data_dict (dict): Dictionary containing pier data.
+        individual_pier_ids (list): List of individual pier IDs.
+        bridge_low_chord (DataFrame): DataFrame containing low chord data.
+        bridge_high_chord (DataFrame): DataFrame containing high chord data.
+        ground_line (DataFrame): DataFrame containing ground line data.
+        scour_data_df (DataFrame): DataFrame containing scour data.
+        bank_stations (DataFrame): DataFrame containing bank station data.
+        lateral_stability (DataFrame): DataFrame containing lateral stability data.
+        lt_deg (DataFrame): DataFrame containing long term degradation data.
+        abt_scour_elev (DataFrame): DataFrame containing abutment scour elevation data.
+        abut_stat (DataFrame): DataFrame containing abutment station data.
+        wse_data (DataFrame): DataFrame containing water surface elevation data.
+        year (list): List containing recurrence interval data for the year.
+    Returns:
+        fig (Figure): The generated figure.
+    """
+
     abut_scour_flag = year[4]
     cs_ltd = year[0]
     wse_flag = year[3]
     recurrence_title = year[-1]
-
-
-
-    pier_keys = list(pier_data_dict.keys())
 
     scour_data_array = []
     
@@ -155,14 +215,16 @@ def generate_figure(pier_data_dict,
     right_station = abut_stat['Abt Toe Right Sta.'].values[0]
     
     
-
+    # Set the channel type based on the bank stations and abutment stations
     ground_line.loc[(ground_line['Offset Station'] > bank_stations['Channel Bank Sta.'].values[0]) & (ground_line['Offset Station'] < bank_stations['Channel Bank Sta.'].values[1]), "channel"] = "Channel"
     ground_line.loc[(ground_line['Offset Station'] < left_station) | (ground_line['Offset Station'] > right_station), "channel"] = "Abutment"
     ground_line = ground_line.assign(lt_deg = 0.0)
     ground_line = ground_line.assign(contract_scour = 0.0)
     ground_line = ground_line.assign(abut_scour = 0.0)
 
-    
+    # Update lt_deg, contract_scour, and abut_scour based on channel type
+    # Assign initial values for lt_deg, contract_scour, and abut_scour
+    # This is done to ensure that the lt_deg values are updated correctly
     for idx, row in ground_line.iterrows():
         if row['channel'] == "Abutment":
             ground_line.at[idx, 'abut_scour'] = abt_scour_elev[abut_scour_flag].values[0]
@@ -191,43 +253,44 @@ def generate_figure(pier_data_dict,
     wse = [[pier_data_dict[individual_pier_ids[0]]['Bent CL Sta'], wse_data[wse_flag].values[0]],
            [pier_data_dict[individual_pier_ids[-1]]['Bent CL Sta'], wse_data[wse_flag].values[0]]]
                     
-
     fig, ax = plt.subplots()
-    
-    
     
     i=0
     scour_data_copy = []
     for pier_id in individual_pier_ids:
-        
+        # Calculate the plotting data for the pier
         pier_plotting_data_left, pier_plotting_data_right = calculate_pier_data(pier_data_dict,pier_id)
-        
-
+        # Plot the left and right sides of the pier
         ax.plot([x[0] for x in pier_plotting_data_left], [x[1] for x in pier_plotting_data_left], color='black',linewidth=1)
         ax.plot([x[0] for x in pier_plotting_data_right], [x[1] for x in pier_plotting_data_right], color='black',linewidth=1)
+        # If the pier is not the first or last pier, calculate and plot the scour data
         if i > 0 and i < len(individual_pier_ids)-1:
             scour_data_array = calculate_scour_data(pier_data_dict,pier_id, scour_data_df,ground_line, year)
             scour_data_copy.append(scour_data_array)
         
             if i == 1:
+                # Plot the scour data for the first pier (100 year), only add label for last iteration
                 ax.plot([x[0] for x in scour_data_array], [x[1] for x in scour_data_array], color='red',linestyle=':',linewidth=2, label = "Local Scour (LS) at Pier")
             else:
                 ax.plot([x[0] for x in scour_data_array], [x[1] for x in scour_data_array], color='red',linestyle=':',linewidth=2)
         i+=1
     
     for station in scour_data_copy:
-        
+        # Find the closest left and right stations in the ground line to the scour holes plotted at each pier
+        # This is done to ensure that the scour holes are plotted at the correct locations on the ground line
+        # and that the lt_deg values are updated correctly
+        # Find the closest left and right stations in the ground line to the scour holes plotted at each pier
         left = min(ground_line['Offset Station'], key=lambda x: abs(x - station[0][0]))
-        
         right = min(ground_line['Offset Station'], key=lambda x: abs(x - station[2][0]))
+        # Get the index of the left and right stations in the ground line
         left_index = ground_line['Offset Station'][ground_line['Offset Station'] == left].index.tolist()
-        
         right_index = ground_line['Offset Station'][ground_line['Offset Station'] == right].index.tolist()
-
+        # Set the lt_deg values to NaN for the range between the left and right stations
+        # This is done to ensure that the lt_deg values are updated correctly
         ground_line.loc[left_index[0]:right_index[0], ["contract_scour"]] = np.nan
         ground_line.loc[left_index[0]:right_index[0], ['lt_deg']] = np.nan
         ground_line.loc[left_index[0]:right_index[0], ["abut_scour"]] = np.nan
-
+        # Replace the lt_deg, abutment scour, and contraction scour values at the left and right stations with the values from the scour holes
         ground_line.loc[left_index[0], ["lt_deg"]] = station[0][1]
         ground_line.loc[right_index[0], ["lt_deg"]] = station[2][1]
         ground_line.loc[left_index[0], ["abut_scour"]] = station[0][1]
@@ -297,35 +360,45 @@ def generate_summary_figure(pier_data_dict,
                           recurrence_data
                          ):
     
-
+    """
+    Generates a summary figure for scour data across multiple recurrence intervals.
+    Args:
+        pier_data_dict (dict): Dictionary containing pier data.
+        individual_pier_ids (list): List of individual pier IDs.
+        bridge_low_chord (DataFrame): DataFrame containing low chord data.
+        bridge_high_chord (DataFrame): DataFrame containing high chord data.
+        ground_line (DataFrame): DataFrame containing ground line data.
+        scour_data_df (DataFrame): DataFrame containing scour data.
+        bank_stations (DataFrame): DataFrame containing bank station data.
+        lateral_stability (DataFrame): DataFrame containing lateral stability data.
+        lt_deg (DataFrame): DataFrame containing long term degradation data.
+        abt_scour_elev (DataFrame): DataFrame containing abutment scour elevation data.
+        abut_stat (DataFrame): DataFrame containing abutment station data.
+        wse_data (DataFrame): DataFrame containing water surface elevation data.
+        recurrence_data (list): List of recurrence data for different years.
+    Returns:
+        fig (Figure): The generated summary figure.
+    """
     fig, ax = plt.subplots()
     iteration = 0
     for year in recurrence_data:
         
         abut_scour_flag = year[4]
         cs_ltd = year[0]
-        wse_flag = year[3]
-        
-        
-
-
-
-        pier_keys = list(pier_data_dict.keys())
-
         scour_data_array = []
         
         left_station = abut_stat['Abt Toe Left Sta.'].values[0]
         right_station = abut_stat['Abt Toe Right Sta.'].values[0]
-        
-        
 
         ground_line.loc[(ground_line['Offset Station'] > bank_stations['Channel Bank Sta.'].values[0]) & (ground_line['Offset Station'] < bank_stations['Channel Bank Sta.'].values[1]), "channel"] = "Channel"
         ground_line.loc[(ground_line['Offset Station'] < left_station) | (ground_line['Offset Station'] > right_station), "channel"] = "Abutment"
+        
+        # Assign initial values for lt_deg, contract_scour, and abut_scour
         ground_line = ground_line.assign(lt_deg = 0.0)
         ground_line = ground_line.assign(contract_scour = 0.0)
         ground_line = ground_line.assign(abut_scour = 0.0)
 
-        
+        # Update lt_deg, contract_scour, and abut_scour based on channel type
         for idx, row in ground_line.iterrows():
             if row['channel'] == "Abutment":
                 ground_line.at[idx, 'abut_scour'] = abt_scour_elev[abut_scour_flag].values[0]
@@ -345,53 +418,51 @@ def generate_summary_figure(pier_data_dict,
         cl_lsd = [[pier_data_dict[individual_pier_ids[0]]['Bent CL Sta'], (scour_data_df['Scour Datum Elev.'].values[0] - scour_data_df[cs_ltd].values[0])],
                         [pier_data_dict[individual_pier_ids[-1]]['Bent CL Sta'], (scour_data_df['Scour Datum Elev.'].values[0] - scour_data_df[cs_ltd].values[0])]]
         
-        wse = [[pier_data_dict[individual_pier_ids[0]]['Bent CL Sta'], wse_data[wse_flag].values[0]],
-            [pier_data_dict[individual_pier_ids[-1]]['Bent CL Sta'], wse_data[wse_flag].values[0]]]
-                        
-
-        
-        
-        
-        
+    
         i=0
         scour_data_copy = []
+        
         for pier_id in individual_pier_ids:
-            
+            # Calculate the plotting data for the pier
             pier_plotting_data_left, pier_plotting_data_right = calculate_pier_data(pier_data_dict,pier_id)
             scour_data_array = calculate_scour_data(pier_data_dict,pier_id, scour_data_df,ground_line, year)
-
+            # Plot the left and right sides of the pier
             ax.plot([x[0] for x in pier_plotting_data_left], [x[1] for x in pier_plotting_data_left], color='black',linewidth=1)
             ax.plot([x[0] for x in pier_plotting_data_right], [x[1] for x in pier_plotting_data_right], color='black',linewidth=1)
+
             if i > 0 and i < len(individual_pier_ids)-1:
+                # Calculate scour data for the pier and append to the list
+                # This is done to ensure that the scour holes are plotted at the correct locations on the ground line
                 scour_data_array = calculate_scour_data(pier_data_dict,pier_id, scour_data_df,ground_line, year)
                 scour_data_copy.append(scour_data_array)
             
                 if iteration == 0:
+                    # Plot the scour data for the first iteration (100 year)
                     ax.plot([x[0] for x in scour_data_array], [x[1] for x in scour_data_array], color='grey',linewidth=2)
                 else:
+                    # Plot the scour data for the second iteration (500 year)
                     ax.plot([x[0] for x in scour_data_array], [x[1] for x in scour_data_array], color='red',linestyle=':',linewidth=2)
             i+=1
+
+
         for station in scour_data_copy:
-            
+            # Find the closest left and right stations in the ground line to the scour holes plotted at each pier
             left = min(ground_line['Offset Station'], key=lambda x: abs(x - station[0][0]))
-            
             right = min(ground_line['Offset Station'], key=lambda x: abs(x - station[2][0]))
+            # Get the index of the left and right stations in the ground line
+            # This is done to ensure that the scour holes are plotted at the correct locations on the ground line
+            # and that the lt_deg values are updated correctly
             left_index = ground_line['Offset Station'][ground_line['Offset Station'] == left].index.tolist()
-            
             right_index = ground_line['Offset Station'][ground_line['Offset Station'] == right].index.tolist()
-
-            ground_line.loc[left_index[0]:right_index[0], ["contract_scour"]] = np.nan
+            # Set the lt_deg values to NaN for the range between the left and right stations
             ground_line.loc[left_index[0]:right_index[0], ['lt_deg']] = np.nan
-            ground_line.loc[left_index[0]:right_index[0], ["abut_scour"]] = np.nan
-
+            # Replace the lt_deg values at the left and right stations with the values from the scour holes
             ground_line.loc[left_index[0], ["lt_deg"]] = station[0][1]
             ground_line.loc[right_index[0], ["lt_deg"]] = station[2][1]
-            ground_line.loc[left_index[0], ["abut_scour"]] = station[0][1]
-            ground_line.loc[right_index[0], ["abut_scour"]] = station[2][1]
-            ground_line.loc[left_index[0], ["contract_scour"]] = station[0][1]
-            ground_line.loc[right_index[0], ["contract_scour"]] = station[2][1]
+           
 
         if iteration == 0:
+            #plot total scour for 100 year
             ax.plot(ground_line['Offset Station'], ground_line['Elev'], color='green', label='Ground Line')
             ax.plot(bridge_low_chord['Bent CL Sta'], bridge_low_chord['Low Chord Elev'], color='black' )
             ax.plot(bridge_high_chord['Bent CL Sta'], bridge_high_chord['High Chord Elev'], color='black')
@@ -400,20 +471,16 @@ def generate_summary_figure(pier_data_dict,
                 ax.plot([x[0] for x in cl_lsd], [x[1] for x in cl_lsd], color='#E98300')
             else:
                 ax.plot(ground_line['Offset Station'], ground_line['lt_deg'],color='grey',linewidth=2, label = "Total Scour - 100YR")
-         
-            ax.plot([x[0] for x in wse], [x[1] for x in wse], color='blue',linewidth=2, label='WSE - 100YR')
         else:
-           
-                        
+            #plot total scour for 500 year
             if lateral_stability['Laterally Stable Channel?'].values[0] == 'No':
                 ax.plot([x[0] for x in cl_lsd], [x[1] for x in cl_lsd], color='#E98300')
             else:
                 ax.plot(ground_line['Offset Station'], ground_line['lt_deg'], color='red',linestyle=':',linewidth=2, label = "Total Scour - 500YR")
               
-            ax.plot([x[0] for x in wse], [x[1] for x in wse], color='blue',linewidth=2,linestyle=':', label='WSE - 500YR')
-
-
         iteration += 1
+
+
     plt.axvline(x=0, color='grey',linewidth=.5)
     y_axis_range = ax.get_ylim()
     y_ticks = range(int(y_axis_range[0]),int(y_axis_range[1]),1)
