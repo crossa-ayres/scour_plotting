@@ -23,9 +23,9 @@ if __name__ == "__main__":
     """
 
     # Set the title and description of the Streamlit app
-    st.set_page_config(page_title="Generate Scour Plots", layout="wide")
+    #st.set_page_config(page_title="Generate Scour Plots", layout="wide")
     
-    #st.title("Generate Scour Plots")
+    st.title("Generate Scour Plots")
     st.subheader("This application generates scour plots based on the provided scour data and recurrence intervals.")
     st.write("Please upload the scour data file (scour_data.csv) in CSV format.")
     st.write("*This file is created by the scour worksheet by clicking the 'Generate Scour Data for Plotting' button and is saved in the same folder as the scour workbook.")
