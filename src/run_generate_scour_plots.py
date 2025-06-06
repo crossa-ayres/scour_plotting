@@ -15,7 +15,8 @@ from scour_plotting_utils import recurrence_txt,generate_pier_scour_df, generate
 if __name__ == "__main__":
     st.title("Generate Scour Plots")
     st.write("This application generates scour plots based on the provided scour data and recurrence intervals.")
-    st.write("Please upload the scour data file in CSV format.")
+    st.write("Please upload the scour data file (scour_data.csv) in CSV format.")
+    st.write("This file is created by the scour worksheet by clicking the 'Generate Scour Data for Plotting' button and is saved in the same folder as the scour workbook.")
     # Set the page configuration
    
     # Create a file uploader for the scour data
