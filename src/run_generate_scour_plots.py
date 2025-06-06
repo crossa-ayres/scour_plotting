@@ -74,7 +74,7 @@ if __name__ == "__main__":
                                 abut_stat, wse_data, 
                                 year)
             st.pyplot(figure)
-            st.write(f"Recurrence Interval: {year[-1]}")
+            
             #allow user to download the figure
             buf = io.BytesIO()
             figure.savefig(buf, format="png")
@@ -96,7 +96,7 @@ if __name__ == "__main__":
                             abut_stat, wse_data, 
                             recurrence_data)
         st.pyplot(summary_figure)
-        st.write("Summary Figure")
+        
         #allow user to download the summary figure
         summary_figure_buf = io.BytesIO()
         summary_figure.savefig(summary_figure_buf, format="png")
