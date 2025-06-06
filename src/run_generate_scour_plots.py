@@ -15,12 +15,6 @@ from scour_plotting_utils import recurrence_txt,generate_pier_scour_df, generate
 
 if __name__ == "__main__":
     
-    #This script runs the Streamlit application to generate scour plots based on the provided scour data and recurrence intervals.
-    #It allows users to upload a scour data file and generates scour plots for each recurrence interval, as well as a summary figure.
-    #The application uses the Streamlit library for the user interface and Matplotlib for plotting.
-    #The scour data file should be in CSV format and created by the scour worksheet by clicking the 'Generate Scour Data for Plotting' button.
-    #The application also allows users to download the generated figures.
-    
 
     # Set the title and description of the Streamlit app
     #st.set_page_config(page_title="Generate Scour Plots", layout="wide")
