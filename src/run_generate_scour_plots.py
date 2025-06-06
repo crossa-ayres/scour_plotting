@@ -56,11 +56,11 @@ if __name__ == "__main__":
         abut_stat = structure_data[10]
         wse_data = structure_data[11]
         pierdata_df = pd.DataFrame(pier_data_dict).T
-        st.data_editor(pierdata_df)
-
+        st.dataframe(pierdata_df)
+        
 
         for year in recurrence_data:
-            figure = generate_figure(pierdata_df, 
+            figure = generate_figure(pier_data_dict, 
                                 individual_pier_ids,
                                 bridge_low_chord, 
                                 bridge_high_chord, 
@@ -82,7 +82,7 @@ if __name__ == "__main__":
             st.download_button(label="Download Figure", data=figure, file_name=f"scour_plot_{year[-1]}.png")
             
             
-        summary_figure = generate_summary_figure(pierdata_df, 
+        summary_figure = generate_summary_figure(pier_data_dict, 
                             individual_pier_ids,
                             bridge_low_chord, 
                             bridge_high_chord, 
