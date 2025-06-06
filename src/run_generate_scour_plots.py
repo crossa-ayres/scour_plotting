@@ -14,6 +14,14 @@ from scour_plotting_utils import recurrence_txt,generate_pier_scour_df, generate
 
 
 if __name__ == "__main__":
+    primary_clr = st.get_option("theme.primaryColor")
+    txt_clr = st.get_option("theme.textColor")
+    s = f"""
+    <style>
+    div.stButton > button:first-child {{ border: 5px solid {primary_clr}; border-radius:20px 20px 20px 20px; }}
+    <style>
+    """
+    st.markdown(s, unsafe_allow_html=True)
     st.title("Generate Scour Plots")
     st.write("This application generates scour plots based on the provided scour data and recurrence intervals.")
     st.write("Please upload the scour data file (scour_data.csv) in CSV format.")
