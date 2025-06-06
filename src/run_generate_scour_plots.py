@@ -15,29 +15,27 @@ from scour_plotting_utils import recurrence_txt,generate_pier_scour_df, generate
 
 if __name__ == "__main__":
     
+    """This script runs the Streamlit application to generate scour plots based on the provided scour data and recurrence intervals.
+    It allows users to upload a scour data file and generates scour plots for each recurrence interval, as well as a summary figure.
+    The application uses the Streamlit library for the user interface and Matplotlib for plotting.
+    The scour data file should be in CSV format and created by the scour worksheet by clicking the 'Generate Scour Data for Plotting' button.
+    The application also allows users to download the generated figures.
+    """
+
+    # Set the title and description of the Streamlit app
+    st.set_page_config(page_title="Generate Scour Plots", layout="wide")
     
-    st.title("Generate Scour Plots")
+    #st.title("Generate Scour Plots")
     st.subheader("This application generates scour plots based on the provided scour data and recurrence intervals.")
     st.write("Please upload the scour data file (scour_data.csv) in CSV format.")
     st.write("*This file is created by the scour worksheet by clicking the 'Generate Scour Data for Plotting' button and is saved in the same folder as the scour workbook.")
     # Set the page configuration
     with st.sidebar:
-        st.header("Upload Files")
+        st.header("File Upload")
         st.subheader("Please upload the scour data file.")
         bridge_data = st.file_uploader("Choose a file")
         st.write("To make changes to the data being plotted, please modifiy the information in the scour worksheet and re-upload the data.")
-
-        
-   
-    # Create a file uploader for the scour data
-    # Ensure the user has uploaded a file
-   
-    # File uploader for scour data
-    # The recurrence intervals are expected to be in a text file with one interval per line
   
-    
-
-    
     recurrence_data = recurrence_txt()  
 
     # Generate scour data based on the flags
@@ -58,6 +56,8 @@ if __name__ == "__main__":
         abt_scour_elev = structure_data[9]
         abut_stat = structure_data[10]
         wse_data = structure_data[11]
+
+        # Display the structure data in a table
         pierdata_df = pd.DataFrame(pier_data_dict).T
         st.divider()
         st.subheader("Structure and Scour Data")
@@ -66,6 +66,8 @@ if __name__ == "__main__":
         st.divider()
         st.header("Scour Figures by Recurrence Interval")
         st.write("The figures below show the scour data for each recurrence interval. You can download each figure by clicking the download button below each plot.")
+        
+        # Generate scour plots for each recurrence interval
         for year in recurrence_data:
             figure = generate_figure(pier_data_dict, 
                                 individual_pier_ids,
@@ -83,13 +85,14 @@ if __name__ == "__main__":
             
             #allow user to download the figure
             buf = io.BytesIO()
-            figure.savefig(buf, format="png")
+            figure.savefig(buf, format="png", dpi=1200)
             buf.seek(0)
             figure = buf.getvalue()
             st.download_button(label=f"Download {year[-1]} Figure", data=figure, file_name=f"scour_plot_{year[-1]}.png")
         st.divider()
         st.header("Scour Summary Figure")
         st.write("The figure below shows the scour data for all recurrence intervals in a single plot. You can download this figure by clicking the download button below the plot.")
+        # Generate the summary figure for all recurrence intervals
         summary_figure = generate_summary_figure(pier_data_dict, 
                             individual_pier_ids,
                             bridge_low_chord, 
@@ -106,7 +109,7 @@ if __name__ == "__main__":
         
         #allow user to download the summary figure
         summary_figure_buf = io.BytesIO()
-        summary_figure.savefig(summary_figure_buf, format="png")
+        summary_figure.savefig(summary_figure_buf, format="png", dpi=1200)
         summary_figure_buf.seek(0)
         summary_figure = summary_figure_buf.getvalue()
         st.download_button(label="Download Summary Figure", data=summary_figure, file_name="scour_summary_plot.png")
