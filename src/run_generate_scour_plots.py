@@ -14,22 +14,16 @@ from scour_plotting_utils import recurrence_txt,generate_pier_scour_df, generate
 
 
 if __name__ == "__main__":
-    primary_clr = st.get_option("theme.primaryColor")
-    txt_clr = st.get_option("theme.textColor")
-    s = f"""
-    <style>
-    div.stButton > button:first-child {{ border: 5px solid {primary_clr}; border-radius:20px 20px 20px 20px; }}
-    <style>
-    """
-    st.markdown(s, unsafe_allow_html=True)
+    
+    
     st.title("Generate Scour Plots")
-    st.write("This application generates scour plots based on the provided scour data and recurrence intervals.")
-    st.write("Please upload the scour data file (scour_data.csv) in CSV format.")
-    st.write("This file is created by the scour worksheet by clicking the 'Generate Scour Data for Plotting' button and is saved in the same folder as the scour workbook.")
+    st.header("This application generates scour plots based on the provided scour data and recurrence intervals.")
+    st.subheader("Please upload the scour data file (scour_data.csv) in CSV format.")
+    st.write("*This file is created by the scour worksheet by clicking the 'Generate Scour Data for Plotting' button and is saved in the same folder as the scour workbook.")
     # Set the page configuration
     with st.sidebar:
         st.header("Upload Files")
-        st.write("Please upload the scour data file.")
+        st.subheader("Please upload the scour data file.")
         bridge_data = st.file_uploader("Choose a file")
         st.write("To make changes to the data being plotted, please modifiy the information in the scour worksheet and re-upload the data.")
 
