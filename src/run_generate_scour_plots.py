@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 import os
 import numpy as np
+import time
 import streamlit as st
 
 from scour_plotting_utils import recurrence_txt,generate_pier_scour_df, generate_figure, generate_summary_figure
@@ -18,6 +19,13 @@ if __name__ == "__main__":
     st.write("Please upload the scour data file (scour_data.csv) in CSV format.")
     st.write("This file is created by the scour worksheet by clicking the 'Generate Scour Data for Plotting' button and is saved in the same folder as the scour workbook.")
     # Set the page configuration
+    with st.sidebar:
+        with st.echo():
+            st.write("This code will be printed to the sidebar.")
+
+        with st.spinner("Loading..."):
+            time.sleep(5)
+        st.success("Done!")
    
     # Create a file uploader for the scour data
     # Ensure the user has uploaded a file
