@@ -79,7 +79,7 @@ if __name__ == "__main__":
             
             #allow user to download the figure
             buf = io.BytesIO()
-            figure.savefig(buf, format="png", dpi=1200)
+            figure.savefig(buf, format="png")
             buf.seek(0)
             figure = buf.getvalue()
             st.download_button(label=f"Download {year[-1]} Figure", data=figure, file_name=f"scour_plot_{year[-1]}.png")
@@ -103,7 +103,7 @@ if __name__ == "__main__":
         
         #allow user to download the summary figure
         summary_figure_buf = io.BytesIO()
-        summary_figure.savefig(summary_figure_buf, format="png", dpi=1200)
+        summary_figure.savefig(summary_figure_buf, format="png")
         summary_figure_buf.seek(0)
         summary_figure = summary_figure_buf.getvalue()
         st.download_button(label="Download Summary Figure", data=summary_figure, file_name="scour_summary_plot.png")
