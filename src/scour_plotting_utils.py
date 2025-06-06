@@ -367,7 +367,7 @@ def generate_summary_figure(pier_data_dict,
                 scour_data_copy.append(scour_data_array)
             
                 if i == 1 and iteration == 1:
-                    ax.plot([x[0] for x in scour_data_array], [x[1] for x in scour_data_array], color='red',linestyle=':',linewidth=2, label = "Total Scour - 500YR")
+                    ax.plot([x[0] for x in scour_data_array], [x[1] for x in scour_data_array], color='red',linestyle=':',linewidth=2)
                 else:
                     ax.plot([x[0] for x in scour_data_array], [x[1] for x in scour_data_array], color='grey',linewidth=2, label = "Total Scour - 100YR")
             i+=1
@@ -399,20 +399,20 @@ def generate_summary_figure(pier_data_dict,
             if lateral_stability['Laterally Stable Channel?'].values[0] == 'No':
                 ax.plot([x[0] for x in cl_lsd], [x[1] for x in cl_lsd], color='#E98300')
             else:
-                ax.plot(ground_line['Offset Station'], ground_line['lt_deg'],color='grey',linewidth=2)
+                ax.plot(ground_line['Offset Station'], ground_line['lt_deg'],color='grey',linewidth=2, label = "Total Scour - 100YR")
             #ax.plot(ground_line['Offset Station'], ground_line["abut_scour"], color='#0073CF', label='Abutment Scour (AS)')
             #ax.plot(ground_line['Offset Station'], ground_line["contract_scour"], color='#FCD450', label='Contraction Scour (CS)')
-            #ax.plot([x[0] for x in wse], [x[1] for x in wse], color='blue',linewidth=2,linestyle=':', label='WSE')
+            ax.plot([x[0] for x in wse], [x[1] for x in wse], color='blue',linewidth=2, label='WSE - 100YR')
         else:
-            #ax.plot(ground_line['Offset Station'], ground_line['Elev'], color='green')
+           
                         
             if lateral_stability['Laterally Stable Channel?'].values[0] == 'No':
                 ax.plot([x[0] for x in cl_lsd], [x[1] for x in cl_lsd], color='#E98300')
             else:
-                ax.plot(ground_line['Offset Station'], ground_line['lt_deg'], color='red',linestyle=':',linewidth=2)
+                ax.plot(ground_line['Offset Station'], ground_line['lt_deg'], color='red',linestyle=':',linewidth=2, label = "Total Scour - 500YR")
                 #ax.plot(ground_line['Offset Station'], ground_line["abut_scour"], color='#0073CF')
                 #ax.plot(ground_line['Offset Station'], ground_line["contract_scour"], color='#FCD450')
-                ax.plot([x[0] for x in wse], [x[1] for x in wse], color='blue',linewidth=2,linestyle=':')
+            ax.plot([x[0] for x in wse], [x[1] for x in wse], color='blue',linewidth=2,linestyle=':', label='WSE - 500YR')
 
 
         iteration += 1
