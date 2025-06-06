@@ -56,7 +56,7 @@ if __name__ == "__main__":
         abut_stat = structure_data[10]
         wse_data = structure_data[11]
         pierdata_df = pd.DataFrame(pier_data_dict).T
-        st.dataframe(pierdata_df)
+        st.data_editor(pierdata_df)
 
 
         for year in recurrence_data:
