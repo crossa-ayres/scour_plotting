@@ -17,8 +17,8 @@ if __name__ == "__main__":
     
     
     st.title("Generate Scour Plots")
-    st.header("This application generates scour plots based on the provided scour data and recurrence intervals.")
-    st.subheader("Please upload the scour data file (scour_data.csv) in CSV format.")
+    st.subheader("This application generates scour plots based on the provided scour data and recurrence intervals.")
+    st.write("Please upload the scour data file (scour_data.csv) in CSV format.")
     st.write("*This file is created by the scour worksheet by clicking the 'Generate Scour Data for Plotting' button and is saved in the same folder as the scour workbook.")
     # Set the page configuration
     with st.sidebar:
@@ -59,9 +59,10 @@ if __name__ == "__main__":
         abut_stat = structure_data[10]
         wse_data = structure_data[11]
         pierdata_df = pd.DataFrame(pier_data_dict).T
+        st.subheader("Structure and Scour Data")
         st.dataframe(pierdata_df,use_container_width=True)
 
-
+        st.subheader("Scour Data")
         for year in recurrence_data:
             figure = generate_figure(pier_data_dict, 
                                 individual_pier_ids,
@@ -84,7 +85,7 @@ if __name__ == "__main__":
             figure = buf.getvalue()
             st.download_button(label=f"Download {year[-1]} Figure", data=figure, file_name=f"scour_plot_{year[-1]}.png")
             
-            
+        st.subheader("Summary Figure")
         summary_figure = generate_summary_figure(pier_data_dict, 
                             individual_pier_ids,
                             bridge_low_chord, 
