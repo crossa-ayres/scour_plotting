@@ -400,9 +400,9 @@ def generate_summary_figure(pier_data_dict,
                 ax.plot([x[0] for x in cl_lsd], [x[1] for x in cl_lsd], color='#E98300', label='Total Scour (LTD + CS + LS)')
             else:
                 ax.plot(ground_line['Offset Station'], ground_line['lt_deg'], color='#E98300', label='Total Scour (LTD + CS + LS)')
-            ax.plot(ground_line['Offset Station'], ground_line["abut_scour"], color='#0073CF', label='Abutment Scour (AS)')
-            ax.plot(ground_line['Offset Station'], ground_line["contract_scour"], color='#FCD450', label='Contraction Scour (CS)')
-            ax.plot([x[0] for x in wse], [x[1] for x in wse], color='blue',linewidth=2,linestyle=':', label='WSE')
+            #ax.plot(ground_line['Offset Station'], ground_line["abut_scour"], color='#0073CF', label='Abutment Scour (AS)')
+            #ax.plot(ground_line['Offset Station'], ground_line["contract_scour"], color='#FCD450', label='Contraction Scour (CS)')
+            #ax.plot([x[0] for x in wse], [x[1] for x in wse], color='blue',linewidth=2,linestyle=':', label='WSE')
         else:
             ax.plot(ground_line['Offset Station'], ground_line['Elev'], color='green')
                         
