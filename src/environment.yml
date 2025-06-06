@@ -6,6 +6,6 @@ channels:
 dependencies:
   - pandas
   - matplotlib
-  - pathlib
-  - conda-forge::streamlit
+ 
+  
 
