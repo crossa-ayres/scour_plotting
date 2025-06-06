@@ -367,9 +367,9 @@ def generate_summary_figure(pier_data_dict,
                 scour_data_copy.append(scour_data_array)
             
                 if i == 1 and iteration == 1:
-                    ax.plot([x[0] for x in scour_data_array], [x[1] for x in scour_data_array], color='red',linestyle=':',linewidth=2)
-                else:
                     ax.plot([x[0] for x in scour_data_array], [x[1] for x in scour_data_array], color='grey',linewidth=2)
+                else:
+                    ax.plot([x[0] for x in scour_data_array], [x[1] for x in scour_data_array], color='red',linestyle=':',linewidth=2)
             i+=1
         for station in scour_data_copy:
             
