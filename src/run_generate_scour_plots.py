@@ -20,12 +20,11 @@ if __name__ == "__main__":
     st.write("This file is created by the scour worksheet by clicking the 'Generate Scour Data for Plotting' button and is saved in the same folder as the scour workbook.")
     # Set the page configuration
     with st.sidebar:
-        with st.echo():
-            st.write("This code will be printed to the sidebar.")
+        st.header("Upload Files")
+        st.write("Please upload the scour data file.")
+        bridge_data = st.file_uploader("Choose a file")
 
-        with st.spinner("Loading..."):
-            time.sleep(5)
-        st.success("Done!")
+        
    
     # Create a file uploader for the scour data
     # Ensure the user has uploaded a file
@@ -33,7 +32,7 @@ if __name__ == "__main__":
     # File uploader for scour data
     # The recurrence intervals are expected to be in a text file with one interval per line
   
-    bridge_data = st.file_uploader("Choose a file")
+    
 
     
     recurrence_data = recurrence_txt()  
