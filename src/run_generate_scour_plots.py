@@ -62,7 +62,7 @@ if __name__ == "__main__":
         st.subheader("Structure and Scour Data")
         st.dataframe(pierdata_df,use_container_width=True)
 
-        st.subheader("Scour Data")
+        st.header("Scour Data Figures")
         for year in recurrence_data:
             figure = generate_figure(pier_data_dict, 
                                 individual_pier_ids,
@@ -85,7 +85,7 @@ if __name__ == "__main__":
             figure = buf.getvalue()
             st.download_button(label=f"Download {year[-1]} Figure", data=figure, file_name=f"scour_plot_{year[-1]}.png")
             
-        st.subheader("Summary Figure")
+        st.header("Scour Summary Figure")
         summary_figure = generate_summary_figure(pier_data_dict, 
                             individual_pier_ids,
                             bridge_low_chord, 
