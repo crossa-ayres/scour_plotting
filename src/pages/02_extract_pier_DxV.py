@@ -44,7 +44,7 @@ if __name__ == "__main__":
     #path to the data folder
     # The data folder should contain the SRH-2D map file, geometry file, and HDF5 files for water depth and velocity.
     #path to the data folder
-    st.set_page_config(layout="wide")
+    
     st.header("Extract Maximum Depth x Velocity (DxV) at Piers")
     st.subheader("This application extracts the maximum depth, velocity, and depth x velocity (DxV) at bridge piers from SRH-2D model data. Please upload the required files indicated in the side bar to proceed.")
     st.text("To plot the location of the maximum DxV for each pier the correct ESPG coordinate system must be selected from the the drop down menu in the side bar. This application will convert projected state plane coordinates into WSG84 latitude and longitude used for plotting.")
