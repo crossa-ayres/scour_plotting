@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from pyproj import Proj, transform, Transformer
-from streamlit_folium import st_folium
+
 from utils.dxv_utils.find_pier_nodes import read_map_file, read_geom_file, find_mesh_points
 
 
