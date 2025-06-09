@@ -1,10 +1,10 @@
 [theme]
 primaryColor="#FF7903"
-backgroundColor="#989898"
+backgroundColor="#003F72"
 secondaryBackgroundColor="#31333F"
 textColor="#FAFAFA"
 font="sans serif"
 
 [theme.sidebar]
 primaryColor="#D4AF37"
-backgroundColor="#19344e"
+backgroundColor="#002A42"
