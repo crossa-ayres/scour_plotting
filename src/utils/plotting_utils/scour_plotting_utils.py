@@ -1,9 +1,7 @@
 import pandas as pd 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
-import os
 import numpy as np
-import streamlit as st
 pd.options.mode.copy_on_write = True
 
 

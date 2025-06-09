@@ -5,9 +5,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
-import os
 import numpy as np
-import time
 import streamlit as st
 
 from utils.plotting_utils.scour_plotting_utils import recurrence_txt,generate_pier_scour_df, generate_figure, generate_summary_figure
