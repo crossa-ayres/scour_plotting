@@ -11,8 +11,8 @@ def recurrence_txt():
     """
     Returns a list of flags used to identify the columns in the DataFrame.
     """
-    flags_100yr = ['CS + LTD Depth (100-yr)', 'Local Scour Depth (100-yr)', 'Scour Datum Elev.', 'WSE 100yr','abut scour 100','100-Year Scour Design']
-    flags_500yr = ['CS + LTD Depth (500-yr)', 'Local Scour Depth (500-yr)', 'Scour Datum Elev.', 'WSE 500yr','abut scour 500','500-Year Scour Check']
+    flags_100yr = ['CS + LTD Depth (100-yr)', 'Local Scour Depth (100-yr)', 'Scour Datum Elev.', 'WSE 100yr','abut scour 100','100-Year Scour Design', 'Scour Elevation 100yr']
+    flags_500yr = ['CS + LTD Depth (500-yr)', 'Local Scour Depth (500-yr)', 'Scour Datum Elev.', 'WSE 500yr','abut scour 500','500-Year Scour Check', 'Scour Elevation 500yr']
     return [flags_100yr, flags_500yr]
 
 def generate_pier_scour_df(bridge_data):
@@ -58,7 +58,9 @@ def generate_pier_scour_df(bridge_data):
                                 'Low Chord Elev',
                                 'High Chord Elev',
                                 'Local Scour Depth (100-yr)',
-                                 'Local Scour Depth (500-yr)' ]]
+                                'Local Scour Depth (500-yr)',
+                                'Scour Elevation 100yr',
+                                'Scour Elevation 500yr']]
     
     bridge_low_chord = bridge_data[['Bent CL Sta','Low Chord Elev']]
     bridge_low_chord = bridge_low_chord.dropna()
@@ -83,7 +85,7 @@ def generate_pier_scour_df(bridge_data):
             abut_stat, wse]
 
 
-def calculate_scour_data(pier_data_dict,pier_id, scour_data_df,ground_line, year):
+def calculate_scour_data(pier_data_dict, pier_id, scour_data_df,ground_line, year):
     """
     Calculates the scour data for a given pier based on its ID and the year.
     Args:
@@ -95,10 +97,12 @@ def calculate_scour_data(pier_data_dict,pier_id, scour_data_df,ground_line, year
     Returns:
         list: List containing the calculated scour data for the pier.
     """
-    cs_ltd = year[0]
-    local_scour = year[1]
+
+    cs_ltd = year[0] # this is just the "CS + LTD Depth (100-year)" string
+    local_scour = year[1] # this is just "Local Scour Dept (100-year) or 500-year" string
     scour_data_array = []
     pier_data = pier_data_dict[pier_id]
+    
     # calculate the left, right, and center stations based on the pier data and the local scour data
     # The left and right stations are calculated as 2 times the local scour depth away from the pier center line station
     # The center station is the pier center line station
@@ -109,17 +113,13 @@ def calculate_scour_data(pier_data_dict,pier_id, scour_data_df,ground_line, year
     left_station = ground_line.iloc[(ground_line['Offset Station']-left).abs().argsort()[:2]]
     right_station = ground_line.iloc[(ground_line['Offset Station']-right).abs().argsort()[:2]]
     center_station = ground_line.iloc[(ground_line['Offset Station']-center).abs().argsort()[:2]]
-    
+
+    # Append left, center, and right station-elevation pairs
     scour_data_array.append([pier_data['Bent CL Sta'] - 2*(scour_data_df[cs_ltd].values[0] - (scour_data_df[cs_ltd].values[0] - pier_data[local_scour])),
                                    left_station['lt_deg'].values[1]])
-    
-    scour_data_array.append([pier_data['Bent CL Sta'],
-                                   (center_station['lt_deg'].values[1] - pier_data[local_scour])- scour_data_df[cs_ltd].values[0]])
-    
+    scour_data_array.append([pier_data['Bent CL Sta'], pier_data[year[6]]])                            
     scour_data_array.append([pier_data['Bent CL Sta'] + 2*(scour_data_df[cs_ltd].values[0] - (scour_data_df[cs_ltd].values[0] - pier_data[local_scour])),
                                    right_station['lt_deg'].values[1]])
-    
-    
     return scour_data_array
 
 
