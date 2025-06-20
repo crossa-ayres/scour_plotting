@@ -207,7 +207,9 @@ def generate_figure(pier_data_dict,
     abut_scour_flag = year[4]
     cs_ltd = year[0]
     wse_flag = year[3]
-    recurrence_title = year[-1]
+    recurrence_title = year[5]
+
+    st.write(pier_data_dict[individual_pier_ids[0]][year[6]])
 
     scour_data_array = []
     
@@ -217,7 +219,8 @@ def generate_figure(pier_data_dict,
     
     # Set the channel type based on the bank stations and abutment stations
     ground_line.loc[(ground_line['Offset Station'] > bank_stations['Channel Bank Sta.'].values[0]) & (ground_line['Offset Station'] < bank_stations['Channel Bank Sta.'].values[1]), "channel"] = "Channel"
-    ground_line.loc[(ground_line['Offset Station'] < left_station) | (ground_line['Offset Station'] > right_station), "channel"] = "Abutment"
+    ground_line.loc[(ground_line['Offset Station'] < left_station) , "channel"] = "Abutment_Left"
+    ground_line.loc[(ground_line['Offset Station'] > right_station), "channel"] = "Abutment_Right"
     ground_line = ground_line.assign(lt_deg = 0.0)
     ground_line = ground_line.assign(contract_scour = 0.0)
     ground_line = ground_line.assign(abut_scour = 0.0)
@@ -226,10 +229,14 @@ def generate_figure(pier_data_dict,
     # Assign initial values for lt_deg, contract_scour, and abut_scour
     # This is done to ensure that the lt_deg values are updated correctly
     for idx, row in ground_line.iterrows():
-        if row['channel'] == "Abutment":
-            ground_line.at[idx, 'abut_scour'] = abt_scour_elev[abut_scour_flag].values[0]
+        if row['channel'] == "Abutment_Left":
+            ground_line.at[idx, 'abut_scour'] = pier_data_dict[individual_pier_ids[0]][year[6]]
             ground_line.at[idx, 'contract_scour'] = np.nan
-            ground_line.at[idx, 'lt_deg'] = abt_scour_elev[abut_scour_flag].values[0]
+            ground_line.at[idx, 'lt_deg'] = pier_data_dict[individual_pier_ids[0]][year[6]]
+        elif row['channel'] == "Abutment_Right":
+            ground_line.at[idx, 'abut_scour'] = pier_data_dict[individual_pier_ids[-1]][year[6]]
+            ground_line.at[idx, 'contract_scour'] = np.nan
+            ground_line.at[idx, 'lt_deg'] = pier_data_dict[individual_pier_ids[-1]][year[6]]
         elif row['channel'] == "Channel":
             
             ground_line.at[idx, 'lt_deg'] = row['Elev'] - lt_deg['Long Term Deg'].values[0] - scour_data_df[cs_ltd].values[0] 
@@ -269,10 +276,24 @@ def generate_figure(pier_data_dict,
             scour_data_copy.append(scour_data_array)
         
             if i == 1:
+                ground_line_elev = ground_line.iloc[(ground_line['Offset Station'] - pier_data_dict[pier_id]['Bent CL Sta']).abs().argsort()[:1]]
+                Initial_depth = ground_line_elev["Elev"].values[0] - pier_data_dict[pier_id]["Bottom of Footing Elev"]
+                remaining_depth = pier_data_dict[pier_id][year[6]]-pier_data_dict[pier_id]["Bottom of Footing Elev"]
+                percent_remaining = np.round((remaining_depth/Initial_depth)*100,0).astype(int)
+                
                 # Plot the scour data for the first pier (100 year), only add label for last iteration
                 ax.plot([x[0] for x in scour_data_array], [x[1] for x in scour_data_array], color='red',linestyle=':',linewidth=2, label = "Local Scour (LS) at Pier")
+                ax.text(scour_data_array[1][0], pier_data_dict[pier_id]["Bottom of Footing Elev"]-5, f'{percent_remaining}%', ha='center')
             else:
+                #find the ground line elevation at the pier center line station
+                ground_line_elev = ground_line.iloc[(ground_line['Offset Station'] - pier_data_dict[pier_id]['Bent CL Sta']).abs().argsort()[:1]]
+                Initial_depth = ground_line_elev["Elev"].values[0] - pier_data_dict[pier_id]["Bottom of Footing Elev"]
+                remaining_depth = pier_data_dict[pier_id][year[6]]-pier_data_dict[pier_id]["Bottom of Footing Elev"]
+                
+                percent_remaining = np.round((remaining_depth/Initial_depth)*100,0).astype(int)
+                
                 ax.plot([x[0] for x in scour_data_array], [x[1] for x in scour_data_array], color='red',linestyle=':',linewidth=2)
+                ax.text(scour_data_array[1][0], pier_data_dict[pier_id]["Bottom of Footing Elev"]-5, f'{percent_remaining}%', ha='center')
         i+=1
     
     for station in scour_data_copy:
@@ -391,7 +412,8 @@ def generate_summary_figure(pier_data_dict,
         right_station = abut_stat['Abt Toe Right Sta.'].values[0]
 
         ground_line.loc[(ground_line['Offset Station'] > bank_stations['Channel Bank Sta.'].values[0]) & (ground_line['Offset Station'] < bank_stations['Channel Bank Sta.'].values[1]), "channel"] = "Channel"
-        ground_line.loc[(ground_line['Offset Station'] < left_station) | (ground_line['Offset Station'] > right_station), "channel"] = "Abutment"
+        ground_line.loc[(ground_line['Offset Station'] < left_station) , "channel"] = "Abutment_Left"
+        ground_line.loc[(ground_line['Offset Station'] > right_station), "channel"] = "Abutment_Right"
         
         # Assign initial values for lt_deg, contract_scour, and abut_scour
         ground_line = ground_line.assign(lt_deg = 0.0)
@@ -400,10 +422,14 @@ def generate_summary_figure(pier_data_dict,
 
         # Update lt_deg, contract_scour, and abut_scour based on channel type
         for idx, row in ground_line.iterrows():
-            if row['channel'] == "Abutment":
-                ground_line.at[idx, 'abut_scour'] = abt_scour_elev[abut_scour_flag].values[0]
+            if row['channel'] == "Abutment_Left":
+                ground_line.at[idx, 'abut_scour'] = pier_data_dict[individual_pier_ids[0]][year[6]]
                 ground_line.at[idx, 'contract_scour'] = np.nan
-                ground_line.at[idx, 'lt_deg'] = abt_scour_elev[abut_scour_flag].values[0]
+                ground_line.at[idx, 'lt_deg'] = pier_data_dict[individual_pier_ids[0]][year[6]]
+            elif row['channel'] == "Abutment_Right":
+                ground_line.at[idx, 'abut_scour'] = pier_data_dict[individual_pier_ids[-1]][year[6]]
+                ground_line.at[idx, 'contract_scour'] = np.nan
+                ground_line.at[idx, 'lt_deg'] = pier_data_dict[individual_pier_ids[-1]][year[6]]
             elif row['channel'] == "Channel":
                 
                 ground_line.at[idx, 'lt_deg'] = row['Elev'] - lt_deg['Long Term Deg'].values[0] - scour_data_df[cs_ltd].values[0] 
