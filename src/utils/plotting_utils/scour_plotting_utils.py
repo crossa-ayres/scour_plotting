@@ -209,8 +209,6 @@ def generate_figure(pier_data_dict,
     wse_flag = year[3]
     recurrence_title = year[5]
 
-    st.write(pier_data_dict[individual_pier_ids[0]][year[6]])
-
     scour_data_array = []
     
     left_station = abut_stat['Abt Toe Left Sta.'].values[0]
