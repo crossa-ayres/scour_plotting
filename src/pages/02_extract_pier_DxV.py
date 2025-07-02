@@ -51,6 +51,8 @@ if __name__ == "__main__":
     with st.sidebar:
         st.header("File Upload")
         st.subheader("Please upload the files specified below.")
+        #user input for search radius around pier centerline
+        search_radius=st.number_input("Search Radius (feet)", min_value=1, max_value=100, value=15, step=1, help="Specify the search radius in feet around the pier centerline nodes to find maximum water depth and velocity.")
         srh2d_srhgeom_file = st.file_uploader("Select .srhgeom file")
         srh2d_map_file = st.file_uploader("Select .map file")
         water_velocity_h5_file = st.file_uploader("Select Vel_Mag_ft_p_s.h5")
@@ -64,7 +66,7 @@ if __name__ == "__main__":
 
     #specify the search radius in feet around the pier centerline nodes
     # The search radius is used to find the maximum water depth and velocity within this radius.
-    search_radius = 15
+    #search_radius = 15
 
 
     if srh2d_map_file is not None and srh2d_srhgeom_file is not None and water_depth_h5_file is not None and water_velocity_h5_file is not None:
