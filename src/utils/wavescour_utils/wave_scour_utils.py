@@ -72,6 +72,20 @@ def calculate_wave_height(U_10,X, g):
     uf = calculate_friction_velocity(U_10)
     return ((4.13*10**-2*((g*X)/uf**2)**(1/2))*uf**2)/g
 
+def calculate_wave_celerity(g,L,d):
+    """
+    Calculate the wave celerity (C) based on the given gravitational acceleration (g), wave length (L), and water depth (d).
+    Parameters:
+        g (float): Gravitational acceleration in m/s^2.
+        L (float): Wave length in meters.
+        d (float): Water depth in meters.
+    Returns:
+        float: Wave celerity in m/s.
+    """
+
+
+    return math.sqrt(((g*L)/(2*3.14159))*math.tanh((2*3.14159*d)/L))
+
 def plot_wave_profile(L_ft, H_ft):
     """
     Plot the wave profile based on the wave length (L) and wave height (H).
@@ -98,7 +112,13 @@ def calculate_regular_wave_scour(U_10,X,d,g):
         float: Regular wave scour in meters.
     """
     L = calulate_wave_length(U_10,X,d,g)
+    C = calculate_wave_celerity(g,L,d)
     H = calculate_wave_height(U_10,X,g)
+    breaking_wave_celerity = C/(math.sqrt(g*d))
+    breaking_wave_steepness = H/d
+    st.write(f"Breaking Wave Celerity: {breaking_wave_celerity:.2f} m/s")
+    st.write(f"Breaking Wave Steepness: {breaking_wave_steepness:.2f}")
+    
     k = (2*3.1415)/L
     L_ft = L * 3.28084  # Convert wave length from meters to feet
     H_ft = H * 3.28084  # Convert water depth from meters to feet
