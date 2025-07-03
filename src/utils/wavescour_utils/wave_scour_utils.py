@@ -116,6 +116,8 @@ def calculate_regular_wave_scour(U_10,X,d,g):
     H = calculate_wave_height(U_10,X,g)
     breaking_wave_celerity = C/(math.sqrt(g*d))
     breaking_wave_steepness = H/d
+    st.write(F"Wave Celerity: {C:.2f} m/s")
+    
     st.write(f"Breaking Wave Celerity: {breaking_wave_celerity:.2f} m/s")
     st.write(f"Breaking Wave Steepness: {breaking_wave_steepness:.2f}")
     
