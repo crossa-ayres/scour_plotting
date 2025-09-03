@@ -1,10 +1,10 @@
-import os
-from glob import glob
+
 import streamlit as st
 import pandas as pd
 import numpy as np
-from pyproj import Proj, transform, Transformer
-from utils.dxv_utils.find_pier_nodes import read_map_file, read_geom_file, find_mesh_points
+from pyproj import Transformer
+from PIL import Image
+from utils.dxv_utils.find_pier_nodes import read_map_file, read_geom_file, find_mesh_points, determine_ts
 
 
 
@@ -44,7 +44,9 @@ if __name__ == "__main__":
     #path to the data folder
     # The data folder should contain the SRH-2D map file, geometry file, and HDF5 files for water depth and velocity.
     #path to the data folder
-    
+    st.set_page_config(layout='wide')
+    image = Image.open('./src/Images/peakflow.jpg')
+    st.image(image, use_container_width=True)
     st.header("Extract Maximum Depth x Velocity (DxV) at Piers")
     st.subheader("This application extracts the maximum depth, velocity, and depth x velocity (DxV) at bridge piers from SRH-2D model data. Please upload the required files indicated in the side bar to proceed.")
     st.text("To plot the location of the maximum DxV for each pier the correct ESPG coordinate system must be selected from the the drop down menu in the side bar. This application will convert projected state plane coordinates into WSG84 latitude and longitude used for plotting.")
@@ -72,60 +74,66 @@ if __name__ == "__main__":
     if srh2d_map_file is not None and srh2d_srhgeom_file is not None and water_depth_h5_file is not None and water_velocity_h5_file is not None:
         pier_data, arc_node_mapping = read_map_file(srh2d_map_file, "Bridge Scour")
         model_nodes = read_geom_file(srh2d_srhgeom_file)
+        time_steps = determine_ts(pier_data, model_nodes,arc_node_mapping, water_depth_h5_file,depth_file_name, water_velocity_h5_file, search_radius)
+        ts_range = range(0,time_steps,1)
+        ts_input = st.selectbox(f"There are {time_steps} time steps in the simulation, please select the time step to process", ts_range,  help="Select the time step to process. The time step corresponds to the time in the SRH-2D model simulation.")
         
-        max_nodes = find_mesh_points(pier_data, model_nodes,arc_node_mapping,water_depth_h5_file,depth_file_name,water_velocity_h5_file,search_radius )
-        max_nodes = pd.DataFrame(max_nodes)
-        lat = [model_nodes.loc[model_nodes["Node"] == node, "lat"].values[0] for node in max_nodes["Model Node"]]
-        long = [model_nodes.loc[model_nodes["Node"] == node, "long"].values[0] for node in max_nodes["Model Node"]]
+        
+        run_analysis = st.button("Process data using selected time step")
+        if run_analysis:
+            max_nodes = find_mesh_points(pier_data, model_nodes,arc_node_mapping,water_depth_h5_file,depth_file_name,water_velocity_h5_file,search_radius,ts_input )
+            max_nodes = pd.DataFrame(max_nodes)
+            lat = [model_nodes.loc[model_nodes["Node"] == node, "lat"].values[0] for node in max_nodes["Model Node"]]
+            long = [model_nodes.loc[model_nodes["Node"] == node, "long"].values[0] for node in max_nodes["Model Node"]]
 
-        max_nodes["size"] = max_nodes["DxV"] / 20  # Scale size for better visibility on the map
-        
-        transformer = Transformer.from_crs(crs,"EPSG:4326")
+            max_nodes["size"] = max_nodes["DxV"] / 20  # Scale size for better visibility on the map
+            
+            transformer = Transformer.from_crs(crs,"EPSG:4326")
 
-        lat, long =  transformer.transform(lat,long)
-        max_nodes["lat"] = lat
-        max_nodes["long"] = long
-        
-        pier_data = pd.merge(max_nodes, pier_data, on="Pier Node", how='outer')
-        
-        
-        
+            lat, long =  transformer.transform(lat,long)
+            max_nodes["lat"] = lat
+            max_nodes["long"] = long
+            
+            pier_data = pd.merge(max_nodes, pier_data, on="Pier Node", how='outer')
+            
+            
+            
 
-        max_nodes = max_nodes.sort_values("DxV", ascending=False).drop_duplicates("Pier Arc ID").sort_index()
-        max_nodes["color"] = np.random.rand(len(max_nodes["DxV"]),3 ).tolist()  # Random color for each point
-        st.divider()
-        st.subheader("Maximum Depth x Velocity (DxV) at Piers")
-        st.dataframe(max_nodes, use_container_width=True)
-        st.divider()
-        st.subheader("Maximum Depth x Velocity (DxV) at Piers - Summary Statistics")
-        st.bar_chart(data=max_nodes, x="Model Node", y="DxV", use_container_width=True)
-        st.divider()
-        st.subheader("Maximum Depth at Piers") 
-        st.bar_chart(data=max_nodes, x="Model Node", y="Depth", use_container_width=True)
-        st.divider()
-        st.subheader("Maximum Velocity at Piers")
-        st.bar_chart(data=max_nodes, x="Model Node", y="Velocity", use_container_width=True)
-        st.divider()
-        st.subheader("Map of Mesh Point location for Maximum Depth x Velocity (DxV) at Piers")
-        pier_line_dict = {}
-        for index, row in pier_data.iterrows():
-            pier_line_dict[row["Pier Arc ID"]] = [row["lat_x"], row["long_x"]]
-        
-        
-        #folium_map = folium.Map(
-        #    location=[max_nodes["lat"].mean(), max_nodes["long"].mean()],
-        #    zoom_start=14,
-        #    tiles="OpenStreetMap",
-        #)
-        #folium.PolyLine(
-        #        locations=[node for node in pier_line_dict.values()],
-        #        color="red",
-        #        weight=3,
-        #        tooltip="Previous Route",
-        #    ).add_to(folium_map)
-        
-        #folium_map.location(max_nodes, x="long", y="lat") # add the image column to the popup parameter
-        #st_folium(folium_map, height=450, use_container_width=True)
-        st.divider()
-        st.map(data=max_nodes, latitude="lat", longitude="long",size = "size",color = "color", use_container_width=True)
+            max_nodes = max_nodes.sort_values("DxV", ascending=False).drop_duplicates("Pier Arc ID").sort_index()
+            max_nodes["color"] = np.random.rand(len(max_nodes["DxV"]),3 ).tolist()  # Random color for each point
+            st.divider()
+            st.subheader("Maximum Depth x Velocity (DxV) at Piers")
+            st.dataframe(max_nodes, use_container_width=True)
+            st.divider()
+            st.subheader("Maximum Depth x Velocity (DxV) at Piers - Summary Statistics")
+            st.bar_chart(data=max_nodes, x="Model Node", y="DxV", use_container_width=True)
+            st.divider()
+            st.subheader("Maximum Depth at Piers") 
+            st.bar_chart(data=max_nodes, x="Model Node", y="Depth", use_container_width=True)
+            st.divider()
+            st.subheader("Maximum Velocity at Piers")
+            st.bar_chart(data=max_nodes, x="Model Node", y="Velocity", use_container_width=True)
+            st.divider()
+            st.subheader("Map of Mesh Point location for Maximum Depth x Velocity (DxV) at Piers")
+            pier_line_dict = {}
+            for index, row in pier_data.iterrows():
+                pier_line_dict[row["Pier Arc ID"]] = [row["lat_x"], row["long_x"]]
+            
+            
+            #folium_map = folium.Map(
+            #    location=[max_nodes["lat"].mean(), max_nodes["long"].mean()],
+            #    zoom_start=14,
+            #    tiles="OpenStreetMap",
+            #)
+            #folium.PolyLine(
+            #        locations=[node for node in pier_line_dict.values()],
+            #        color="red",
+            #        weight=3,
+            #        tooltip="Previous Route",
+            #    ).add_to(folium_map)
+            
+            #folium_map.location(max_nodes, x="long", y="lat") # add the image column to the popup parameter
+            #st_folium(folium_map, height=450, use_container_width=True)
+            st.divider()
+            st.map(data=max_nodes, latitude="lat", longitude="long",size = "size",color = "color", use_container_width=True)
 

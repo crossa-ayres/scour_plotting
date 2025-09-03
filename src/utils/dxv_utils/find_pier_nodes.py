@@ -2,9 +2,8 @@ import pandas as pd
 import re
 import math
 import numpy as np
-from pyproj import Proj, transform, Transformer
 import streamlit as st
-from .read_srh_results import extract_data
+from .read_srh_results import extract_data, determine_timeStep
 
 
 def read_map_file(map_file_path:str, scour_run:str) -> tuple:
@@ -66,7 +65,7 @@ def read_map_file(map_file_path:str, scour_run:str) -> tuple:
             pier_nodes.append([arc_id,elements[1], elements[2]])
             #xy[lines[j]] = re.split(r'\s+', lines[j-1])
     pier_nodes = pd.DataFrame(pier_nodes, columns=["Pier Node", 'lat', 'long'])
-   
+    
     pier_nodes['lat'] = pd.to_numeric(pier_nodes['lat'])
     pier_nodes['long'] = pd.to_numeric(pier_nodes['long'])
     return pier_nodes, arc_nodes
@@ -95,7 +94,7 @@ def read_geom_file(srhgeom_file_path:str) -> dict:
     return node_xy
 
 
-def find_mesh_points(pier_data:dict, model_nodes:dict,arc_node_mapping:dict, depth_file:str,depth_file_name, velocity_file:str, search_radius = 8) -> None:
+def determine_ts(pier_data:dict, model_nodes:dict,arc_node_mapping:dict, depth_file:str,depth_file_name, velocity_file:str, search_radius = 8) -> None:
     """
     Finds the mesh points around piers and calculates the Depth x Velocity (DxV) product for each pier.
 
@@ -113,50 +112,69 @@ def find_mesh_points(pier_data:dict, model_nodes:dict,arc_node_mapping:dict, dep
     
 
     """
-    max_nodes = []
-    my_bar = st.progress(0, text="Processing Piers...")
     
     for index, row in pier_data.iterrows():
-        my_bar.progress(index, text=f"Processing Pier {row["Pier Node"]}...")
         temp_nodes = []
         for idx, model_row in model_nodes.iterrows():
+            
             distance = math.dist([row["lat"], row["long"]], [model_row["lat"], model_row["long"]])
             if distance <= search_radius:
                 temp_nodes.append(model_row["Node"])
-        depth, velocity = extract_data(depth_file,depth_file_name, velocity_file, temp_nodes)
-        if depth.empty or velocity.empty:
-            st.warning(f"No depth or velocity data found for pier {row["Pier Node"]}. Skipping.")
-            continue
-        else:
-            depth = depth[depth["Depth"] > 0]
-            velocity = velocity[velocity["Velocity"] > 0]
+        number_ts = determine_timeStep(depth_file,depth_file_name,velocity_file, nodes = temp_nodes)
+        
+        if index == 0:
+            break
+    number_ts = number_ts - 1
+    
+    return number_ts
+    
+def find_mesh_points(pier_data:dict, model_nodes:dict,arc_node_mapping:dict, depth_file:str,depth_file_name, velocity_file:str, search_radius = 8,ts_input = 10) -> None:
+        my_bar = st.progress(0, text="Processing Piers...")
+        max_nodes = []
+        for index, row in pier_data.iterrows():
+            
+            my_bar.progress(index, text=f"Processing Pier {row["Pier Node"]}...")
+            temp_nodes = []
+            for idx, model_row in model_nodes.iterrows():
+                
+                distance = math.dist([row["lat"], row["long"]], [model_row["lat"], model_row["long"]])
+                if distance <= search_radius:
+                    temp_nodes.append(model_row["Node"])
+            depth, velocity = extract_data(depth_file,depth_file_name, velocity_file, temp_nodes, time_step=ts_input)
+            
             if depth.empty or velocity.empty:
-                st.warning(f"No valid depth or velocity data found for pier {row["Pier Node"]}. Skipping.")
+                st.warning(f"No depth or velocity data found for pier {row["Pier Node"]}. Skipping.")
                 continue
             else:
-                dv_array = np.array(np.round(depth["Depth"] * velocity["Velocity"],2))
-            
-                DxV = pd.DataFrame()
-                DxV["Node"] = depth["Node"]
-                DxV["DxV"] = dv_array
-                max_value = DxV["DxV"].idxmax()
+                depth = depth[depth["Depth"] > 0]
+                velocity = velocity[velocity["Velocity"] > 0]
+                if depth.empty or velocity.empty:
+                    st.warning(f"No valid depth or velocity data found for pier {row["Pier Node"]}. Skipping.")
+                    continue
+                else:
+                    dv_array = np.array(np.round(depth["Depth"] * velocity["Velocity"],2))
+                
+                    DxV = pd.DataFrame()
+                    DxV["Node"] = depth["Node"]
+                    DxV["DxV"] = dv_array
+                    max_value = DxV["DxV"].idxmax()
 
-                result = arc_node_mapping.map(lambda x: x == row["Pier Node"])
-                row_index, col_index = result.stack()[result.stack()].index[0]
-                
-                
-                
-                max_nodes.append([arc_node_mapping["arcID"][row_index], 
-                                row["Pier Node"], 
-                                DxV["Node"][max_value],
-                                DxV["DxV"][max_value],
-                                np.round(depth["Depth"][max_value],4), 
-                                np.round(velocity["Velocity"][max_value],4)])
-    my_bar.empty()
+                    result = arc_node_mapping.map(lambda x: x == row["Pier Node"])
+                    row_index, col_index = result.stack()[result.stack()].index[0]
+                    
+                    
+                    
+                    max_nodes.append([arc_node_mapping["arcID"][row_index], 
+                                    row["Pier Node"], 
+                                    DxV["Node"][max_value],
+                                    DxV["DxV"][max_value],
+                                    np.round(depth["Depth"][max_value],4), 
+                                    np.round(velocity["Velocity"][max_value],4)])
+        my_bar.empty()
+            
+        max_nodes = pd.DataFrame(max_nodes, columns = ["Pier Arc ID", "Pier Node", "Model Node","DxV","Depth","Velocity"])
         
-    max_nodes = pd.DataFrame(max_nodes, columns = ["Pier Arc ID", "Pier Node", "Model Node","DxV","Depth","Velocity"])
-    
-    return max_nodes
+        return max_nodes
 
 
 

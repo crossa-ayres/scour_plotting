@@ -11,8 +11,30 @@ def write_csv(data, filename):
         writer.writerow(["Node", "Value"])
         for key, value in data.items():
             writer.writerow([key, value])
+def determine_timeStep(depth_file:str,depth_file_name,velocity_file: str, nodes: list):
+    depth_data_dict = []
+    velocity_data_dict = []
+    for index in range(4):
+        try:
+            file_reference = depth_file_name.split("_")[index]
+            with h5py.File(depth_file, 'r') as file:
+                a_group_key = list(file.keys())[0]
+                # Getting the data  [0]
+                data = list(file[a_group_key][file_reference]['Water_Depth_ft']['Values'])
+                
+                num_timesteps = []
+                for j in nodes:
+                    depth_array = []
+                    for i in range(len(data)):
+                        depth_array.append(float(data[i][int(j)-1]))
+                   
+                    num_timesteps.append(len(depth_array))
+           
+            return max(num_timesteps)
+        except Exception as e:
+            pass
 
-def extract_data(depth_file:str,depth_file_name,velocity_file: str, nodes: list) -> tuple:
+def extract_data(depth_file:str,depth_file_name,velocity_file: str, nodes: list, time_step) -> tuple:
     
     """
     Extracts and processes depth and velocity data from HDF5 files for specified nodes.
@@ -42,7 +64,8 @@ def extract_data(depth_file:str,depth_file_name,velocity_file: str, nodes: list)
                     depth_array = []
                     for i in range(len(data)):
                         depth_array.append(float(data[i][int(j)-1]))
-                    depth_data_dict.append([j,max(depth_array)])
+                    
+                    depth_data_dict.append([j,depth_array[time_step]])
                 depth_data_dict = pd.DataFrame(depth_data_dict,columns = ["Node","Depth"])
         except Exception as e:
             pass
@@ -62,7 +85,7 @@ def extract_data(depth_file:str,depth_file_name,velocity_file: str, nodes: list)
                     for i in range(len(data)):
                         velocity_array.append(float(data[i][int(j)-1]))
                     
-                    velocity_data_dict.append([j,max(velocity_array)])
+                    velocity_data_dict.append([j,velocity_array[time_step]])
                 velocity_data_dict = pd.DataFrame(velocity_data_dict,columns = ["Node","Velocity"])
         except Exception as e:
             pass
