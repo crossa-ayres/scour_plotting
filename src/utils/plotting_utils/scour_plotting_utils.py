@@ -37,6 +37,8 @@ def generate_pier_scour_df(bridge_data):
     
     pier_data_dict = {}
     individual_pier_ids = []
+    events = bridge_data[['scour check title',	'scour design interval']]
+    events = events.dropna()
     bank_stations = bridge_data[['Channel Bank Sta.']]
     lateral_stability = bridge_data[['Laterally Stable Channel?']]
     lt_deg = bridge_data[['Long Term Deg']]
@@ -82,7 +84,7 @@ def generate_pier_scour_df(bridge_data):
             lateral_stability,
             lt_deg, 
             abt_scour_elev, 
-            abut_stat, wse]
+            abut_stat, wse,events]
 
 
 def calculate_scour_data(pier_data_dict, pier_id, scour_data_df,ground_line, year):
@@ -181,7 +183,7 @@ def generate_figure(pier_data_dict,
                           lt_deg, 
                           abt_scour_elev, 
                           abut_stat, wse_data, 
-                          year
+                          year,event
                           ):
     
     """
@@ -349,7 +351,7 @@ def generate_figure(pier_data_dict,
         plt.hlines(y=y,xmin = -5, xmax = 0, color='grey',linewidth=1)
     plt.xlabel('Station [ft]', weight='bold')
     plt.ylabel('Elevation [ft-NAVD88]', weight='bold')    
-    plt.title(recurrence_title, weight='bold')
+    plt.title(event, weight='bold')
     
     
 
