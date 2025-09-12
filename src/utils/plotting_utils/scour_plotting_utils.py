@@ -70,6 +70,7 @@ def generate_pier_scour_df(bridge_data):
     bridge_high_chord = bridge_high_chord.dropna()
     ground_line = bridge_data[['Offset Station', 'Elev']]
     pier_data_df = pier_data_df.dropna()
+    #,events
 
     for index, row in pier_data_df.iterrows():
         pier_data_dict[row['Bent ID']] = row
@@ -84,7 +85,7 @@ def generate_pier_scour_df(bridge_data):
             lateral_stability,
             lt_deg, 
             abt_scour_elev, 
-            abut_stat, wse,events]
+            abut_stat, wse]
 
 
 def calculate_scour_data(pier_data_dict, pier_id, scour_data_df,ground_line, year):
@@ -183,7 +184,7 @@ def generate_figure(pier_data_dict,
                           lt_deg, 
                           abt_scour_elev, 
                           abut_stat, wse_data, 
-                          year,event
+                          year
                           ):
     
     """
@@ -351,7 +352,7 @@ def generate_figure(pier_data_dict,
         plt.hlines(y=y,xmin = -5, xmax = 0, color='grey',linewidth=1)
     plt.xlabel('Station [ft]', weight='bold')
     plt.ylabel('Elevation [ft-NAVD88]', weight='bold')    
-    plt.title(event, weight='bold')
+    #plt.title(event, weight='bold')
     
     
 
