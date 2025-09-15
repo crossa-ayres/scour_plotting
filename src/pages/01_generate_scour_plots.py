@@ -48,7 +48,7 @@ if __name__ == "__main__":
         abt_scour_elev = structure_data[9]
         abut_stat = structure_data[10]
         wse_data = structure_data[11]
-        #events = structure_data[12]
+        events = structure_data[12]
 
         # Display the structure data in a table
         pierdata_df = pd.DataFrame(pier_data_dict).T
@@ -63,8 +63,8 @@ if __name__ == "__main__":
         # Generate scour plots for each recurrence interval
         i=0
         
-        #events=events.to_numpy()
-        #, events[0][i]
+        events=events.to_numpy()
+     
         for year in recurrence_data:
             figure = generate_figure(pier_data_dict, 
                                 individual_pier_ids,
@@ -77,7 +77,7 @@ if __name__ == "__main__":
                                 lt_deg, 
                                 abt_scour_elev, 
                                 abut_stat, wse_data, 
-                                year)
+                                year,events[0][i])
             st.pyplot(figure)
             
             
@@ -86,7 +86,7 @@ if __name__ == "__main__":
             figure.savefig(buf, format="png")
             buf.seek(0)
             figure = buf.getvalue()
-            st.download_button(label=f"Download Figure", data=figure, file_name=f"scour_plot_.png")
+            st.download_button(label=f"Download {events[0][i]} Figure", data=figure, file_name=f"scour_plot_{events[0][i]}.png")
             i+=1
         st.divider()
         st.header("Scour Summary Figure")
