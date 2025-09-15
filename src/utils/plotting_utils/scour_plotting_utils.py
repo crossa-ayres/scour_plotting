@@ -70,6 +70,7 @@ def generate_pier_scour_df(bridge_data):
     bridge_high_chord = bridge_high_chord.dropna()
     ground_line = bridge_data[['Offset Station', 'Elev']]
     pier_data_df = pier_data_df.dropna()
+    #
 
     for index, row in pier_data_df.iterrows():
         pier_data_dict[row['Bent ID']] = row
