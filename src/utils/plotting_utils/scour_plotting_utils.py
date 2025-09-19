@@ -1,6 +1,7 @@
 import pandas as pd 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
+from matplotlib.patches import Polygon
 import os
 import numpy as np
 import streamlit as st
@@ -335,9 +336,14 @@ def generate_figure(pier_data_dict,
 
     
     ax.plot(ground_line['Offset Station'], ground_line['Elev'], color='green', label='Ground Line')
+    line1 = list(zip(bridge_low_chord['Bent CL Sta'],bridge_low_chord['Low Chord Elev']))
+    line2 = list(zip(bridge_high_chord['Bent CL Sta'],bridge_high_chord['High Chord Elev']))
+    polygon_points = line1 + line2[::-1]  # Reverse line2 to close the polygon
+
+# Create the polygon
+    polygon = Polygon(polygon_points, closed=True, edgecolor='black', facecolor='lightgrey', hatch='///', alpha=0.8)
+    ax.add_patch(polygon)
     
-    ax.plot(bridge_low_chord['Bent CL Sta'], bridge_low_chord['Low Chord Elev'], color='black' )
-    ax.plot(bridge_high_chord['Bent CL Sta'], bridge_high_chord['High Chord Elev'], color='black')
     
     
     
@@ -491,8 +497,7 @@ def generate_summary_figure(pier_data_dict,
         if iteration == 0:
             #plot total scour for 100 year
             ax.plot(ground_line['Offset Station'], ground_line['Elev'], color='green', label='Ground Line')
-            ax.plot(bridge_low_chord['Bent CL Sta'], bridge_low_chord['Low Chord Elev'], color='black' )
-            ax.plot(bridge_high_chord['Bent CL Sta'], bridge_high_chord['High Chord Elev'], color='black')
+       
             
             if lateral_stability['Laterally Stable Channel?'].values[0] == 'No':
                 ax.plot([x[0] for x in cl_lsd], [x[1] for x in cl_lsd], color='#E98300')
@@ -507,7 +512,13 @@ def generate_summary_figure(pier_data_dict,
               
         iteration += 1
 
+    line1 = list(zip(bridge_low_chord['Bent CL Sta'],bridge_low_chord['Low Chord Elev']))
+    line2 = list(zip(bridge_high_chord['Bent CL Sta'],bridge_high_chord['High Chord Elev']))
+    polygon_points = line1 + line2[::-1]  # Reverse line2 to close the polygon
 
+    # Create the polygon
+    polygon = Polygon(polygon_points, closed=True, edgecolor='black', facecolor='lightgrey', hatch='///', alpha=0.8)
+    ax.add_patch(polygon)
     plt.axvline(x=0, color='grey',linewidth=.5)
     y_axis_range = ax.get_ylim()
     y_ticks = range(int(y_axis_range[0]),int(y_axis_range[1]),1)
