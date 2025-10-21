@@ -1,6 +1,6 @@
 import pandas as pd
 
-from utils.data_io.download_stage_data import download_usgs_data, load_flow_data, create_location_plot
+from utils.data_io.download_stage_data import download_usgs_data, load_flow_data
 
 
 def process_data(usgs_station_id, min, max):
