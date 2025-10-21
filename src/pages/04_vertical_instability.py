@@ -45,7 +45,7 @@ if __name__ == "__main__":
         with st.expander("See Subsetted DataFrame"):
             st.dataframe(data)
         #plot the stage vs date as an altair plot
-        figure = alt.Chart(data).mark_line().encode(
+        figure = alt.Chart(data).mark_line(color = "darkslategray").encode(
             x='date:T',
             y='stage:Q'
         ).properties(
@@ -53,7 +53,7 @@ if __name__ == "__main__":
             height=600,
             
         )
-        points = alt.Chart(data).mark_circle(color='black', size = 40).encode(
+        points = alt.Chart(data).mark_circle(color="burlywood", fill = False, size = 40).encode(
             x='date:T',
             y='stage:Q'
         )
