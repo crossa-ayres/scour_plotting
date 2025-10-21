@@ -8,6 +8,11 @@ dependencies:
   - matplotlib
   - h5py
   - pyproj
+  - pip
+    pip:
+      - folium
+      - requests
+      - streamlit-folium
  
   
 
