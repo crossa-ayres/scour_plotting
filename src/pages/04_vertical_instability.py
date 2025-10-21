@@ -53,7 +53,7 @@ if __name__ == "__main__":
             height=600,
             
         )
-        points = alt.Chart(data).mark_circle(color="burlywood", fill = False, size = 40).encode(
+        points = alt.Chart(data).mark_circle(color="burlywood", size = 40).encode(
             x='date:T',
             y='stage:Q'
         )
