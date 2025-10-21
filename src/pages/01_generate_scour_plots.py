@@ -5,13 +5,16 @@ from PIL import Image
 warnings.simplefilter(action='ignore', category=FutureWarning)
 import streamlit as st
 
-from utils.plotting_utils.scour_plotting_utils import recurrence_txt,generate_pier_scour_df, generate_figure, generate_summary_figure
+#from utils.plotting_utils.scour_plotting_utils import recurrence_txt,generate_pier_scour_df, generate_figure, generate_summary_figure
+from utils.plotting_utils.plotting_utils import generate_figure
+
+from utils.plotting_utils.data_processing_utils import recurrence_txt,generate_pier_scour_df
 
 
 if __name__ == "__main__":
     st.set_page_config(layout='wide')
-    image = Image.open('./src/Images/peakflow.jpg')
-    st.image(image, use_container_width=True)
+    #image = Image.open('./src/Images/peakflow.jpg')
+    #st.image(image, use_container_width=True)
     
 
     # Set the title and description of the Streamlit app
@@ -36,6 +39,17 @@ if __name__ == "__main__":
         structure_data = generate_pier_scour_df(bridge_data)
 
         # Unpack the structure data
+        """
+        pier_data_dict, 
+            individual_pier_ids,
+            bridge_low_chord, 
+            bridge_high_chord, 
+            ground_line, 
+            scour_data_df, 
+            bank_stations, 
+            lateral_stability,
+             wse,events,abutment_data
+        """
         pier_data_dict = structure_data[0]
         individual_pier_ids = structure_data[1]
         bridge_low_chord = structure_data[2]
@@ -44,11 +58,12 @@ if __name__ == "__main__":
         scour_data_df = structure_data[5]
         bank_stations = structure_data[6]
         lateral_stability = structure_data[7]
-        lt_deg = structure_data[8]
-        abt_scour_elev = structure_data[9]
-        abut_stat = structure_data[10]
-        wse_data = structure_data[11]
-        events = structure_data[12]
+        wse_data = structure_data[8]
+        events = structure_data[9]
+        abutment_data = structure_data[10]
+        abut_stat = structure_data[11]
+        LTD = structure_data[12]
+        contraction_scour = structure_data[13]
 
         # Display the structure data in a table
         pierdata_df = pd.DataFrame(pier_data_dict).T
@@ -65,7 +80,22 @@ if __name__ == "__main__":
         
         events=events.to_numpy()
      
-        for year in recurrence_data:
+        for year in events[0]:
+            if i == 0:
+                recur = 0
+                abutment_elevation = abutment_data['SDAB']
+                wse_station = wse_data['WSE 100yr Station']
+                wse_elev = wse_data['WSE 100yr']
+                contract_sta = contraction_scour['CS_Design_Station']
+                contract_elev = contraction_scour['CS_Design_Elev']
+            else:
+                recur = 1
+                abutment_elevation = abutment_data['SCAB']
+                wse_station = wse_data['WSE 500yr Station']
+                wse_elev = wse_data['WSE 500yr']
+                contract_sta = contraction_scour['CS_Check_Station']
+                contract_elev = contraction_scour['CS_Check_Elev']
+            abutment_data_event = [abutment_data['Offset Station'], abutment_elevation]
             figure = generate_figure(pier_data_dict, 
                                 individual_pier_ids,
                                 bridge_low_chord, 
@@ -74,10 +104,8 @@ if __name__ == "__main__":
                                 scour_data_df,
                                 bank_stations, 
                                 lateral_stability,
-                                lt_deg, 
-                                abt_scour_elev, 
-                                abut_stat, wse_data, 
-                                year,events[0][i])
+                                abut_stat,wse_station, wse_elev,
+                                year,events[0][i],abutment_data_event,recur,LTD,contract_sta,contract_elev)
             st.pyplot(figure)
             
             
@@ -92,6 +120,7 @@ if __name__ == "__main__":
         st.header("Scour Summary Figure")
         st.write("The figure below shows the scour data for all recurrence intervals in a single plot. You can download this figure by clicking the download button below the plot.")
         # Generate the summary figure for all recurrence intervals
+        """
         summary_figure = generate_summary_figure(pier_data_dict, 
                             individual_pier_ids,
                             bridge_low_chord, 
@@ -112,6 +141,7 @@ if __name__ == "__main__":
         summary_figure_buf.seek(0)
         summary_figure = summary_figure_buf.getvalue()
         st.download_button(label="Download Summary Figure", data=summary_figure, file_name="scour_summary_plot.png")
+        """
         
                             
 

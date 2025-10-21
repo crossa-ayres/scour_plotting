@@ -41,6 +41,8 @@ def calculate_approximate_wave_period(U_10,X,g):
         float: Approximate wave period in seconds.
     """
     uf = calculate_friction_velocity(U_10)  # Assuming U_10 is 10 m/s for the calculation
+    period=((0.651*((g*X)/(uf**2))**(1/3))*uf)/g
+    st.write("wave Period: ",period)
     return ((0.651*((g*X)/(uf**2))**(1/3))*uf)/g
 
 def calulate_wave_length(U_10,X,d,g):
