@@ -4,12 +4,13 @@ channels:
   - https://repo.anaconda.com/pkgs/r
   - https://repo.anaconda.com/pkgs/msys2
 dependencies:
-  - pandas
-  - matplotlib
-  - h5py
-  - pyproj
+  
   - pip
     pip:
+      - pandas
+      - matplotlib
+      - h5py
+      - pyproj
       - folium
       - requests
       - streamlit-folium
