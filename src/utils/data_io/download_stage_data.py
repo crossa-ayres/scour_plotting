@@ -2,8 +2,8 @@ import os
 import requests
 import pandas as pd
 import streamlit as st
-import folium
-from streamlit_folium import folium_static
+#import folium
+#from streamlit_folium import folium_static
 
 
 
@@ -144,7 +144,7 @@ def load_flow_data(file_path, min, max):
         st.error(f"Error loading peak flow data: {e}")
        
         return None
-    
+"""   
 def create_location_plot(info_path, site_id):
     location_df = extract_site_info(info_path)
     attr = ('Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>')
@@ -159,4 +159,4 @@ def create_location_plot(info_path, site_id):
     #folium.LayerControl().add_to(m)
     st.header(f"Gage {site_id} Location")
     folium_static(m, width=3000, height=500)
-            
+"""        

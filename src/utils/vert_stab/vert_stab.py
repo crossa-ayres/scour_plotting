@@ -18,7 +18,7 @@ def process_data(usgs_station_id, min, max):
     file_path, info_path = download_usgs_data(usgs_station_id)
     data_df = load_flow_data(file_path, min, max)
     
-    create_location_plot(info_path, usgs_station_id)
+    #create_location_plot(info_path, usgs_station_id)
 
     return data_df
     
