@@ -35,17 +35,28 @@ if __name__ == "__main__":
 
     # Generate scour data based on the flags
     if st.sidebar.button("Analyze Stage Measurements"):
-        data, mean, std = process_data(usgs_station_id, lower_threshold,upper_threshold)
+        data, mean_flow_df = process_data(usgs_station_id, lower_threshold,upper_threshold)
+        #add column to mean_flow_df with year, month and day
+        st.subheader("Average Daily Flow Data")
+        #write the mode of the flow data
+        
+      
+        st.line_chart(mean_flow_df.set_index('date')['flow'])
         with st.expander("See Original Data"):
             st.dataframe(data)
            
         st.subheader("Stage Measurement Data")
+        st.subheader(f"The median average daily flow value is: {mean_flow_df['flow'].median():.1f} cfs")
+        st.subheader(f"The peak mean daily flow value recorded at this gage is: {mean_flow_df['flow'].max():.1f} cfs")
+        mean = data['flow'].mean()
+        std = data['flow'].std()
         st.write(f"Mean Flow Across Gage Period of Record: {mean:.1f} cfs")
         st.write(f"Standard Deviation of Flow Across Gage Period of Record: {std:.1f} cfs")
         with st.expander("See Subsetted DataFrame"):
             st.dataframe(data)
         #plot the stage vs date as an altair plot
-        figure = alt.Chart(data).mark_line(color = "darkslategray").encode(
+        st.write(f"### Stage vs Date Plot for USGS Gage ID: {usgs_station_id} between {lower_threshold} and {upper_threshold} cfs")
+        figure = alt.Chart(data).mark_line(color = "slategray").encode(
             x='date:T',
             y='stage:Q'
         ).properties(
@@ -53,7 +64,7 @@ if __name__ == "__main__":
             height=600,
             
         )
-        points = alt.Chart(data).mark_circle(color="burlywood", size = 40).encode(
+        points = alt.Chart(data).mark_circle(color="black", size = 100).encode(
             x='date:T',
             y='stage:Q'
         )

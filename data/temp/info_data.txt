@@ -989,9 +989,9 @@ function station_navigation_manager_2() {
 <tr><td><strong>&nbsp;<a href="https://waterdata.usgs.gov/monitoring-location/10318500/">Current / Historical Observations</a></strong> &nbsp; &nbsp;
  (<a href="https://waterdata.usgs.gov/iv-data-availability-statement/" target="_blank">availability statement</a>) &nbsp;
 </td>
-<td>&nbsp;1989-10-24&nbsp;</td><td>&nbsp;2025-10-21&nbsp;</td><td>&nbsp;</td>
+<td>&nbsp;1989-10-24&nbsp;</td><td>&nbsp;2025-10-22&nbsp;</td><td>&nbsp;</td>
 <tr><td colspan="4"><strong><a href="/nwis/dv?site_no=10318500"> &nbsp;Daily Data</a></strong></td></tr>
-<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Discharge, cubic feet per second&nbsp;</td><td headers='begin_date'>&nbsp;1895-07-01&nbsp;</td><td headers='end_date'>&nbsp;2025-10-20&nbsp;</td><td headers='count_nu' align="right">&nbsp;32238&nbsp;</td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Discharge, cubic feet per second&nbsp;</td><td headers='begin_date'>&nbsp;1895-07-01&nbsp;</td><td headers='end_date'>&nbsp;2025-10-21&nbsp;</td><td headers='count_nu' align="right">&nbsp;32239&nbsp;</td></tr>
 <tr><td colspan="4"><strong>&nbsp;<a href="/nwis/dvstat?search_site_no=10318500&amp;format=sites_selection_links">Daily Statistics</a>&nbsp;</strong></td></tr>
 <tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Discharge, cubic feet per second&nbsp;</td><td headers='begin_date'>&nbsp;1895-07-01&nbsp;</td><td headers='end_date'>&nbsp;2025-06-02&nbsp;</td><td headers='count_nu' align="right">32113&nbsp;</td></tr>
 <tr><td colspan="4"><strong>&nbsp;<a href="/nwis/monthly?search_site_no=10318500&amp;format=sites_selection_links">Monthly Statistics</a>&nbsp;</strong></td></tr>
@@ -1060,8 +1060,8 @@ function station_navigation_manager_2() {
     <b>Title: NWIS Site Information for USA: Site Inventory <br />
     URL: <span id="footerURL">https://waterdata.usgs.gov/nwis/inventory?<br /><br /></span></b>
     Page Contact Information: <a href=https://waterdata.usgs.gov/questions-comments/?&ownerCode=NV&referrerUrl=https%3A%2F%2Fwaterdata.usgs.gov%2Fnwis%2Finventory%2F%3Fsite_no%3D10318500%26agency_cd%3DUSGS target="_blank">Nevada Water Data Support Team</a><br />
-    Page Last Modified: 2025-10-21 18:48:09 EDT<br />
-    <font size="-2"> 1 &nbsp; 0.97 vaww02<br /></font>
+    Page Last Modified: 2025-10-22 17:15:19 EDT<br />
+    <font size="-2"> 0.77 &nbsp; 0.74 vaww02<br /></font>
    </p>
 </div>
 <br>

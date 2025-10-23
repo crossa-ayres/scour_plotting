@@ -43,6 +43,31 @@ def download_usgs_data(site_id):
         st.error(f"Error downloading peak flow data: {e}")
        
         return None
+def download_usgs_mean_flow(site_id):
+    try:
+        
+        yesterday = pd.Timestamp.now() - pd.Timedelta(days=1)
+        yesterday_str = yesterday.strftime('%Y-%m-%d')
+        
+    
+        url = f"https://waterdata.usgs.gov/nwis/measurements?site_no={site_id}&agency_cd=USGS&format=rdb_expanded"
+
+        if not os.path.exists("data/temp"):
+            os.makedirs("data/temp")
+        file_path = requests.get(url)
+        
+        #save the file to the temp directory
+        with open(os.path.join("data/temp","flow_data_mean.txt"), 'wb') as f:
+            f.write(file_path.content)
+        
+
+        file_path = os.path.join("data/temp","flow_data_mean.txt")
+        
+        return file_path
+    except Exception as e:
+        st.error(f"Error downloading peak flow data: {e}")
+       
+        return None
     
 
 def extract_site_info(info_path):
@@ -124,8 +149,7 @@ def load_flow_data(file_path, min, max):
         data_df = data_df[['date', 'stage', 'flow']]
         
         data_df = data_df.dropna()
-        mean_flow = data_df['flow'].mean()
-        std_flow = data_df['flow'].std()
+        
        # min_val = float(min)
        # max_val = float(max)
         #make sure the flow is within the min and max range and remove any rows that are not
@@ -139,7 +163,44 @@ def load_flow_data(file_path, min, max):
         
         
         
-        return data_df, mean_flow, std_flow
+        return data_df
+    except Exception as e:
+        st.error(f"Error loading peak flow data: {e}")
+       
+        return None
+    
+def load_mean_flow_data(file_path):
+    """
+    Loads the peak flow data from the given file path into a pandas DataFrame.
+    
+    Args:
+        file_path (str): The path to the peak flow data file.
+        
+    Returns:
+        pd.DataFrame: The loaded peak flow data.
+    """
+    try:
+        data_df = pd.DataFrame()
+        df = pd.read_csv(file_path, delimiter='\t', on_bad_lines='skip', skiprows=14, header = 0)
+        
+        #delete the first row of the dataframe df
+        df = df.iloc[1:]
+        
+        data_df['date'] = pd.to_datetime(df['measurement_dt'],format='mixed')
+        data_df['stage'] = pd.to_numeric(df['gage_height_va'], errors='coerce')
+        data_df['flow'] = pd.to_numeric(df['discharge_va'], errors='coerce', downcast='float')
+        data_df = data_df[['date', 'stage', 'flow']]
+        
+        data_df = data_df.dropna()
+
+        #add column contining just the year
+        data_df['year'] = data_df['date'].dt.year
+        data_df['month'] = data_df['date'].dt.month
+        data_df['day'] = data_df['date'].dt.day
+        
+        
+        
+        return data_df
     except Exception as e:
         st.error(f"Error loading peak flow data: {e}")
        
