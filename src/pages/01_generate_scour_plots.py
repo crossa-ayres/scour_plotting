@@ -37,6 +37,7 @@ if __name__ == "__main__":
     if bridge_data is not None:
         bridge_data = pd.read_csv(bridge_data) 
         structure_data = generate_pier_scour_df(bridge_data)
+        
 
         # Unpack the structure data
         """
@@ -50,6 +51,7 @@ if __name__ == "__main__":
             lateral_stability,
              wse,events,abutment_data
         """
+        
         pier_data_dict = structure_data[0]
         individual_pier_ids = structure_data[1]
         bridge_low_chord = structure_data[2]
@@ -64,6 +66,15 @@ if __name__ == "__main__":
         abut_stat = structure_data[11]
         LTD = structure_data[12]
         contraction_scour = structure_data[13]
+        pile_data = structure_data[14]
+        all_pile_elements = structure_data[15]
+        
+        
+        
+        
+        
+
+        
 
         # Display the structure data in a table
         pierdata_df = pd.DataFrame(pier_data_dict).T
@@ -105,7 +116,7 @@ if __name__ == "__main__":
                                 bank_stations, 
                                 lateral_stability,
                                 abut_stat,wse_station, wse_elev,
-                                year,events[0][i],abutment_data_event,recur,LTD,contract_sta,contract_elev)
+                                year,events[0][i],abutment_data_event,recur,LTD,contract_sta,contract_elev,pile_data,all_pile_elements)
             st.pyplot(figure)
             
             

@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from pyproj import Transformer
 from PIL import Image
-from utils.dxv_utils.find_pier_nodes import read_map_file, read_geom_file, find_mesh_points, determine_ts
+from utils.dxv_utils.find_pier_nodes import read_map_file, read_geom_file, find_mesh_points, determine_ts, determine_sc_run
 
 
 
@@ -60,26 +60,25 @@ if __name__ == "__main__":
         water_velocity_h5_file = st.file_uploader("Select Vel_Mag_ft_p_s.h5")
         water_depth_h5_file = st.file_uploader("Select Water_Depth_ft.h5")
         crs = st.selectbox("Select Coordinate Reference System (CRS)", ["EPSG:2233","EPSG:2232", "EPSG:2231", "EPSG:26910", "EPSG:26911", "EPSG:26912", "EPSG:26913", "EPSG:26914", "EPSG:26915"])
+        
         if water_depth_h5_file is not None:
             depth_file_name = water_depth_h5_file.name
         
+            
         
-        
-
     #specify the search radius in feet around the pier centerline nodes
     # The search radius is used to find the maximum water depth and velocity within this radius.
     #search_radius = 15
-
-
-    if srh2d_map_file is not None and srh2d_srhgeom_file is not None and water_depth_h5_file is not None and water_velocity_h5_file is not None:
-        pier_data, arc_node_mapping = read_map_file(srh2d_map_file, "Bridge Scour")
+    if water_depth_h5_file is not None:
+        scour_run = determine_sc_run(map_file_path=srh2d_map_file)
+        scour_run = st.selectbox("Select the scour coverage to use in this analysis", [ l[0] for l in scour_run], help="Select the scour run to process from the map file.")
+        
+        pier_data, arc_node_mapping = read_map_file(srh2d_map_file, scour_run)
         model_nodes = read_geom_file(srh2d_srhgeom_file)
         time_steps = determine_ts(pier_data, model_nodes,arc_node_mapping, water_depth_h5_file,depth_file_name, water_velocity_h5_file, search_radius)
         ts_range = range(0,time_steps,1)
         ts_input = st.selectbox(f"There are {time_steps} time steps in the simulation, please select the time step to process", ts_range,  help="Select the time step to process. The time step corresponds to the time in the SRH-2D model simulation.")
-        
-        
-        run_analysis = st.button("Process data using selected time step")
+        run_analysis = st.button(f"Process data using timestep {ts_input} and the {scour_run} scour coverage")
         if run_analysis:
             max_nodes = find_mesh_points(pier_data, model_nodes,arc_node_mapping,water_depth_h5_file,depth_file_name,water_velocity_h5_file,search_radius,ts_input )
             max_nodes = pd.DataFrame(max_nodes)

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>USGS 10318500 HUMBOLDT RV NR ELKO, NV</title>
+<title>USGS 07105500 FOUNTAIN CREEK AT COLORADO SPRINGS, CO</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
 <!--[if IE]><meta http-equiv='X-UA-Compatible' content='IE=edge'><![endif]-->
@@ -874,7 +874,7 @@ var processingBar = createBar (300,15,'white',1,'black','blue',85,7,10,"");
 
 </div> <!-- nwisweb_header -->
 
-<br /><h2>USGS 10318500 HUMBOLDT RV NR ELKO, NV</h2><center><!-- STATION LEVEL NAVIGATION -->
+<br /><h2>USGS 07105500 FOUNTAIN CREEK AT COLORADO SPRINGS, CO</h2><center><!-- STATION LEVEL NAVIGATION -->
 
 <script type="text/javascript">
 <!--
@@ -903,20 +903,20 @@ function station_navigation_manager_2() {
    //alert("stay_local " + stay_local);
    var url = '';
    if (program == "epa_huc_surf") {
-      url = "https://cfpub.epa.gov/surf/huc.cfm?huc_code=16040101";
+      url = "https://cfpub.epa.gov/surf/huc.cfm?huc_code=11020003";
    }
    else if (program == "adr") {
-      url = "https://wdr.water.usgs.gov/wy2024/pdfs/10318500.2024.pdf";
+      url = "https://wdr.water.usgs.gov/wy2024/pdfs/07105500.2024.pdf";
    }
    //else if (program == "awl") {
-   //   url = "https://groundwaterwatch.usgs.gov/AWLSites.asp?S=10318500";
+   //   url = "https://groundwaterwatch.usgs.gov/AWLSites.asp?S=07105500";
    //}
    else {
       if (stay_local == 1) {
          url = "/nwis/";
       } else {
          if (national_host_url) {
-            url = "https://nwis.waterdata.usgs.gov/nv/nwis/";
+            url = "https://nwis.waterdata.usgs.gov/co/nwis/";
          } else {
             url = "/nwis/";
          }
@@ -962,7 +962,7 @@ function station_navigation_manager_2() {
 <option value="wys_rpt" >Water-Year Summary</option>
 <option value="revision" >Revisions</option>
 </select>
-   <input type="hidden" alt="Site Number" name="site_no"   value="10318500" />
+   <input type="hidden" alt="Site Number" name="site_no"   value="07105500" />
    <input type="hidden" alt="Agency Code" name="agency_cd" id="agency_cd" value="USGS" />
    <input type="submit" alt="Submit" value="GO" onclick="return station_navigation_manager_2()" />
    </font>
@@ -977,38 +977,50 @@ function station_navigation_manager_2() {
 <div id="stationTable">
 <dl>
 <dt>DESCRIPTION:</dt>
-<dd>Latitude  40&#176;56'11.6", &nbsp; Longitude 115&#176;37'27.0" &nbsp; NAD83<br /></dd>
-<dd>Elko County, Nevada,  Hydrologic Unit 16040101</dd>
-<dd>Drainage area: 2,779 square miles</dd><dd>Datum of gage:  5,142.32 feet above &nbsp; NGVD29.</dd></dl><dl><dt>AVAILABLE DATA:</dt><dd><table border="1" cellpadding="1" cellspacing="0">
+<dd>Latitude  38&#176;48'59", &nbsp; Longitude 104&#176;49'20" &nbsp; NAD27<br /></dd>
+<dd>El Paso County, Colorado,  Hydrologic Unit 11020003</dd>
+<dd>Drainage area: 392 square miles</dd><dd>Datum of gage:  5,900 feet above &nbsp; NGVD29.</dd></dl><dl><dt>AVAILABLE DATA:</dt><dd><table border="1" cellpadding="1" cellspacing="0">
 <tr>
  <th id='data_type'>Data Type</th>
  <th id='begin_date'>Begin Date</th>
  <th id='end_date'>End Date</th>
  <th id='count_nu'>Count</th>
 </tr>
-<tr><td><strong>&nbsp;<a href="https://waterdata.usgs.gov/monitoring-location/10318500/">Current / Historical Observations</a></strong> &nbsp; &nbsp;
+<tr><td><strong>&nbsp;<a href="https://waterdata.usgs.gov/monitoring-location/07105500/">Current / Historical Observations</a></strong> &nbsp; &nbsp;
  (<a href="https://waterdata.usgs.gov/iv-data-availability-statement/" target="_blank">availability statement</a>) &nbsp;
 </td>
-<td>&nbsp;1989-10-24&nbsp;</td><td>&nbsp;2025-10-22&nbsp;</td><td>&nbsp;</td>
-<tr><td colspan="4"><strong><a href="/nwis/dv?site_no=10318500"> &nbsp;Daily Data</a></strong></td></tr>
-<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Discharge, cubic feet per second&nbsp;</td><td headers='begin_date'>&nbsp;1895-07-01&nbsp;</td><td headers='end_date'>&nbsp;2025-10-21&nbsp;</td><td headers='count_nu' align="right">&nbsp;32239&nbsp;</td></tr>
-<tr><td colspan="4"><strong>&nbsp;<a href="/nwis/dvstat?search_site_no=10318500&amp;format=sites_selection_links">Daily Statistics</a>&nbsp;</strong></td></tr>
-<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Discharge, cubic feet per second&nbsp;</td><td headers='begin_date'>&nbsp;1895-07-01&nbsp;</td><td headers='end_date'>&nbsp;2025-06-02&nbsp;</td><td headers='count_nu' align="right">32113&nbsp;</td></tr>
-<tr><td colspan="4"><strong>&nbsp;<a href="/nwis/monthly?search_site_no=10318500&amp;format=sites_selection_links">Monthly Statistics</a>&nbsp;</strong></td></tr>
-<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Discharge, cubic feet per second&nbsp;</td><td headers='begin_date'>&nbsp;1895-07&nbsp;</td><td headers='end_date'>&nbsp;2025-06&nbsp;</td><td headers='count_nu'>&nbsp;</td></tr>
-<tr><td colspan="4"><strong>&nbsp;<a href="/nwis/annual?search_site_no=10318500&amp;format=sites_selection_links">Annual Statistics</a>&nbsp;</strong></td></tr>
-<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Discharge, cubic feet per second&nbsp;</td><td headers='begin_date'>&nbsp;1895&nbsp;</td><td headers='end_date'>&nbsp;2025&nbsp;</td><td headers='count_nu'>&nbsp;</td></tr>
-<tr><td headers='data_type'><strong>&nbsp;<a href="/nwis/peak/?site_no=10318500">Peak streamflow</a></strong></td><td headers='begin_date'>&nbsp;1896-06-07&nbsp;</td><td headers='end_date'>&nbsp;2024-04-28&nbsp;</td><td headers='count_nu' align="right">&nbsp;87&nbsp;</td></tr>
-<tr><td headers='data_type'><strong>&nbsp;<a href="/nwis/measurements/?site_no=10318500">Field measurements</a></strong></td><td headers='begin_date'>&nbsp;1970-10-02&nbsp;</td><td headers='end_date'>&nbsp;2025-08-27&nbsp;</td><td headers='count_nu' align="right">&nbsp;545&nbsp;</td></tr>
-<tr><td headers='data_type'><strong>&nbsp;<a href="/nwis/qwdata/?site_no=10318500">Field/Lab water-quality samples (Legacy QW is frozen as of March 2024, newer data may be found on MLP)</a></strong></td><td headers='begin_date'>&nbsp;1977-04-28&nbsp;</td><td headers='end_date'>&nbsp;1989-10-19&nbsp;</td><td headers='count_nu' align="right">&nbsp;58&nbsp;</td></tr>
-<tr><td headers='data_type'><strong>&nbsp;<a href="/nwis/wys_rpt/?site_no=10318500">Water-Year Summary</a></strong></td><td headers='begin_date'>&nbsp;2005&nbsp;</td><td headers='end_date'>&nbsp;2024&nbsp;</td><td headers='count_nu' align="right">&nbsp;20&nbsp;</td></tr>
-<tr id='revisions_row'><td><strong>&nbsp;<a href="/nwis/revision/?site_no=10318500&agency_cd=USGS">Revisions</a></strong></td>
+<td>&nbsp;1987-10-07&nbsp;</td><td>&nbsp;2025-11-07&nbsp;</td><td>&nbsp;</td>
+<tr><td colspan="4"><strong><a href="/nwis/dv?site_no=07105500"> &nbsp;Daily Data</a></strong></td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Temperature, water, degrees Celsius&nbsp;</td><td headers='begin_date'>&nbsp;2024-01-11&nbsp;</td><td headers='end_date'>&nbsp;2025-11-07&nbsp;</td><td headers='count_nu' align="right">&nbsp;1980&nbsp;</td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Discharge, cubic feet per second&nbsp;</td><td headers='begin_date'>&nbsp;1976-01-19&nbsp;</td><td headers='end_date'>&nbsp;2025-11-06&nbsp;</td><td headers='count_nu' align="right">&nbsp;18190&nbsp;</td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Suspended sediment concentration, milligrams per liter&nbsp;</td><td headers='begin_date'>&nbsp;1995-09-07&nbsp;</td><td headers='end_date'>&nbsp;2012-09-30&nbsp;</td><td headers='count_nu' align="right">&nbsp;2761&nbsp;</td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Suspended sediment discharge, short tons per day&nbsp;</td><td headers='begin_date'>&nbsp;1995-09-07&nbsp;</td><td headers='end_date'>&nbsp;2012-09-29&nbsp;</td><td headers='count_nu' align="right">&nbsp;2964&nbsp;</td></tr>
+<tr><td colspan="4"><strong>&nbsp;<a href="/nwis/dvstat?search_site_no=07105500&amp;format=sites_selection_links">Daily Statistics</a>&nbsp;</strong></td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Temperature, water, degrees Celsius&nbsp;</td><td headers='begin_date'>&nbsp;2024-01-22&nbsp;</td><td headers='end_date'>&nbsp;2024-10-07&nbsp;</td><td headers='count_nu' align="right">255&nbsp;</td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Discharge, cubic feet per second&nbsp;</td><td headers='begin_date'>&nbsp;1976-01-19&nbsp;</td><td headers='end_date'>&nbsp;2025-04-30&nbsp;</td><td headers='count_nu' align="right">18000&nbsp;</td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Suspended sediment concentration, milligrams per liter&nbsp;</td><td headers='begin_date'>&nbsp;1995-09-07&nbsp;</td><td headers='end_date'>&nbsp;2012-09-30&nbsp;</td><td headers='count_nu' align="right">2761&nbsp;</td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Suspended sediment discharge, short tons per day&nbsp;</td><td headers='begin_date'>&nbsp;1995-09-07&nbsp;</td><td headers='end_date'>&nbsp;2012-09-29&nbsp;</td><td headers='count_nu' align="right">2964&nbsp;</td></tr>
+<tr><td colspan="4"><strong>&nbsp;<a href="/nwis/monthly?search_site_no=07105500&amp;format=sites_selection_links">Monthly Statistics</a>&nbsp;</strong></td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Temperature, water, degrees Celsius&nbsp;</td><td headers='begin_date'>&nbsp;2024-01&nbsp;</td><td headers='end_date'>&nbsp;2024-10&nbsp;</td><td headers='count_nu'>&nbsp;</td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Discharge, cubic feet per second&nbsp;</td><td headers='begin_date'>&nbsp;1976-01&nbsp;</td><td headers='end_date'>&nbsp;2025-04&nbsp;</td><td headers='count_nu'>&nbsp;</td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Suspended sediment concentration, milligrams per liter&nbsp;</td><td headers='begin_date'>&nbsp;1995-09&nbsp;</td><td headers='end_date'>&nbsp;2012-09&nbsp;</td><td headers='count_nu'>&nbsp;</td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Suspended sediment discharge, short tons per day&nbsp;</td><td headers='begin_date'>&nbsp;1995-09&nbsp;</td><td headers='end_date'>&nbsp;2012-09&nbsp;</td><td headers='count_nu'>&nbsp;</td></tr>
+<tr><td colspan="4"><strong>&nbsp;<a href="/nwis/annual?search_site_no=07105500&amp;format=sites_selection_links">Annual Statistics</a>&nbsp;</strong></td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Temperature, water, degrees Celsius&nbsp;</td><td headers='begin_date'>&nbsp;2024&nbsp;</td><td headers='end_date'>&nbsp;2025&nbsp;</td><td headers='count_nu'>&nbsp;</td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Discharge, cubic feet per second&nbsp;</td><td headers='begin_date'>&nbsp;1976&nbsp;</td><td headers='end_date'>&nbsp;2025&nbsp;</td><td headers='count_nu'>&nbsp;</td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Suspended sediment concentration, milligrams per liter&nbsp;</td><td headers='begin_date'>&nbsp;1995&nbsp;</td><td headers='end_date'>&nbsp;2012&nbsp;</td><td headers='count_nu'>&nbsp;</td></tr>
+<tr><td headers='data_type'> &nbsp;&nbsp;&nbsp; Suspended sediment discharge, short tons per day&nbsp;</td><td headers='begin_date'>&nbsp;1995&nbsp;</td><td headers='end_date'>&nbsp;2012&nbsp;</td><td headers='count_nu'>&nbsp;</td></tr>
+<tr><td headers='data_type'><strong>&nbsp;<a href="/nwis/peak/?site_no=07105500">Peak streamflow</a></strong></td><td headers='begin_date'>&nbsp;1976-08-02&nbsp;</td><td headers='end_date'>&nbsp;2024-07-21&nbsp;</td><td headers='count_nu' align="right">&nbsp;49&nbsp;</td></tr>
+<tr><td headers='data_type'><strong>&nbsp;<a href="/nwis/measurements/?site_no=07105500">Field measurements</a></strong></td><td headers='begin_date'>&nbsp;1976-08-02&nbsp;</td><td headers='end_date'>&nbsp;2025-09-26&nbsp;</td><td headers='count_nu' align="right">&nbsp;838&nbsp;</td></tr>
+<tr><td headers='data_type'><strong>&nbsp;<a href="/nwis/qwdata/?site_no=07105500">Field/Lab water-quality samples (Legacy QW is frozen as of March 2024, newer data may be found on MLP)</a></strong></td><td headers='begin_date'>&nbsp;1919-04-30&nbsp;</td><td headers='end_date'>&nbsp;2024-02-05&nbsp;</td><td headers='count_nu' align="right">&nbsp;1844&nbsp;</td></tr>
+<tr><td headers='data_type'><strong>&nbsp;<a href="/nwis/wys_rpt/?site_no=07105500">Water-Year Summary</a></strong></td><td headers='begin_date'>&nbsp;2005&nbsp;</td><td headers='end_date'>&nbsp;2024&nbsp;</td><td headers='count_nu' align="right">&nbsp;20&nbsp;</td></tr>
+<tr id='revisions_row'><td><strong>&nbsp;<a href="/nwis/revision/?site_no=07105500&agency_cd=USGS">Revisions</a></strong></td>
 <td colspan='3' id='revisions_available'>&nbsp;Loading...</td>
 </table>
 </dd></dl><dl><dt>OPERATION:</dt>
- <dd>Record for this site is maintained by the USGS Nevada Water Science Center </dd>
+ <dd>Record for this site is maintained by the USGS Colorado Water Science Center </dd>
  <dd><strong>Email questions about this site to
- <a id="gs_questions" href=https://waterdata.usgs.gov/questions-comments/?&ownerCode=NV&referrerUrl=https%3A%2F%2Fwaterdata.usgs.gov%2Fnwis%2Finventory%2F%3Fsite_no%3D10318500%26agency_cd%3DUSGS target="_blank">Nevada Water Science Center Water-Data Inquiries</a>
+ <a id="gs_questions" href=https://waterdata.usgs.gov/questions-comments/?&ownerCode=CO&referrerUrl=https%3A%2F%2Fwaterdata.usgs.gov%2Fnwis%2Finventory%2F%3Fsite_no%3D07105500%26agency_cd%3DUSGS target="_blank">Colorado Water Science Center Water-Data Inquiries</a>
  </dd></dl>
  </strong>
 
@@ -1025,7 +1037,7 @@ function station_navigation_manager_2() {
 <div id="usgssubfooter">
 <hr>
 	<div id="leftsubfooter">
-	        <a id="gs_questions" href=https://waterdata.usgs.gov/questions-comments/?&ownerCode=NV&referrerUrl=https%3A%2F%2Fwaterdata.usgs.gov%2Fnwis%2Finventory%2F%3Fsite_no%3D10318500%26agency_cd%3DUSGS target="_blank">Questions or Comments</a><br />
+	        <a id="gs_questions" href=https://waterdata.usgs.gov/questions-comments/?&ownerCode=CO&referrerUrl=https%3A%2F%2Fwaterdata.usgs.gov%2Fnwis%2Finventory%2F%3Fsite_no%3D07105500%26agency_cd%3DUSGS target="_blank">Questions or Comments</a><br />
 		<a href="https://help.waterdata.usgs.gov">Help</a><br />
 	</div>
 
@@ -1059,9 +1071,9 @@ function station_navigation_manager_2() {
     <a href="https://www.usgs.gov/">U.S. Geological Survey</a><br />
     <b>Title: NWIS Site Information for USA: Site Inventory <br />
     URL: <span id="footerURL">https://waterdata.usgs.gov/nwis/inventory?<br /><br /></span></b>
-    Page Contact Information: <a href=https://waterdata.usgs.gov/questions-comments/?&ownerCode=NV&referrerUrl=https%3A%2F%2Fwaterdata.usgs.gov%2Fnwis%2Finventory%2F%3Fsite_no%3D10318500%26agency_cd%3DUSGS target="_blank">Nevada Water Data Support Team</a><br />
-    Page Last Modified: 2025-10-22 17:15:19 EDT<br />
-    <font size="-2"> 0.77 &nbsp; 0.74 vaww02<br /></font>
+    Page Contact Information: <a href=https://waterdata.usgs.gov/questions-comments/?&ownerCode=CO&referrerUrl=https%3A%2F%2Fwaterdata.usgs.gov%2Fnwis%2Finventory%2F%3Fsite_no%3D07105500%26agency_cd%3DUSGS target="_blank">Colorado Water Data Support Team</a><br />
+    Page Last Modified: 2025-11-07 14:25:45 EST<br />
+    <font size="-2"> 0.32 &nbsp; 0.3 caww01<br /></font>
    </p>
 </div>
 <br>

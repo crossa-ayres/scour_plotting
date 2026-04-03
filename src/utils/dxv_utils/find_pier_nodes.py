@@ -3,8 +3,41 @@ import re
 import math
 import numpy as np
 import streamlit as st
+from io import StringIO
 from .read_srh_results import extract_data, determine_timeStep
 
+def parse_file(map_file_path, scour_run:str):
+    
+   
+   
+    stringio = StringIO(map_file_path.getvalue().decode("utf-8"))
+    # To read file as string:
+    file = stringio.readlines()
+    arc_pier_index = []
+    
+    node_index = []
+    scour_data_index = []
+    
+    
+    i=0
+    for line in file:
+        
+        if scour_run in line:
+            scour_data_index.append(i)
+            
+        if "arcType 5" in line:
+            arc_pier_index.append(i)
+            
+        try:
+           
+            if "ID" in line and i > scour_data_index[0]:
+                
+                node_index.append(i)
+        except:
+            pass
+            
+        i+=1
+    return arc_pier_index, node_index
 
 def read_map_file(map_file_path:str, scour_run:str) -> tuple:
     """
@@ -18,31 +51,12 @@ def read_map_file(map_file_path:str, scour_run:str) -> tuple:
             - arc_nodes: DataFrame with columns ['Node', 'arcID'] containing information about arc nodes.
 
     """
-    #with open(map_file_path, 'r') as file:
-    file = map_file_path.read().decode("utf-8").splitlines()
-    
-    # Read each line in the file
-    i=0
-    arc_pier_index = []
-    
-    node_index = []
-    scour_data_index = []
-    
-    for line in file:
+    arc_pier_index, node_index = parse_file(map_file_path , scour_run)
         
-        if scour_run in line:
-            scour_data_index.append(i)
-        if "arcType 5" in line:
-            arc_pier_index.append(i)
-            
-        try:
-            if "ID" in line and i > scour_data_index[0]:
-                node_index.append(i)
-        except:
-            pass
-            
-        i+=1
-  
+        
+    stringio = StringIO(map_file_path.getvalue().decode("utf-8"))
+    # To read file as string:
+    file = stringio.readlines()
     lines = [line.rstrip() for line in file]
     st.write(f"Found {len(arc_pier_index)} arc pier nodes and {len(node_index)} potential nodes surrounding the piers.")
     arc_nodes = []
@@ -63,7 +77,7 @@ def read_map_file(map_file_path:str, scour_run:str) -> tuple:
             arc = re.split(r'\s+', lines[j].rstrip())[1]
             arc_id = f"ID {arc}"
             pier_nodes.append([arc_id,elements[1], elements[2]])
-            #xy[lines[j]] = re.split(r'\s+', lines[j-1])
+           
     pier_nodes = pd.DataFrame(pier_nodes, columns=["Pier Node", 'lat', 'long'])
     
     pier_nodes['lat'] = pd.to_numeric(pier_nodes['lat'])
@@ -93,6 +107,38 @@ def read_geom_file(srhgeom_file_path:str) -> dict:
        
     return node_xy
 
+def determine_sc_run(map_file_path:str)-> str:
+    """
+    Reads a map file and extracts the scour title.
+    Args:
+        map_file_path (str): The path to the map file.
+    Returns:
+        str: The scour title extracted from the map file.
+
+    """
+    #with open(map_file_path, 'r') as file:
+    file = map_file_path.read().decode("utf-8").splitlines()
+    # Read each line in the file
+    scour_run=[]
+    coverage_index = []
+    scour_run_index_range = []
+    index = 0
+    for line in file:
+        if "COVATTS PROPERTIES BRIDGE_SCOUR" in line and index not in scour_run_index_range:
+            coverage_index.append(index)
+            scour_run_index_range.append([index-15, index])
+        index += 1
+    st.write(f"Found {len(scour_run_index_range)} scour runs in the map file.")
+ 
+    for i in range(0,len(scour_run_index_range)):
+        for j in range(scour_run_index_range[i][0], scour_run_index_range[i][-1]):
+            if "COVNAME" in file[j]:
+                scour_run.append([file[j].split("COVNAME")[1]])
+                
+                next
+                
+    
+    return scour_run
 
 def determine_ts(pier_data:dict, model_nodes:dict,arc_node_mapping:dict, depth_file:str,depth_file_name, velocity_file:str, search_radius = 8) -> None:
     """
@@ -112,7 +158,7 @@ def determine_ts(pier_data:dict, model_nodes:dict,arc_node_mapping:dict, depth_f
     
 
     """
-    
+    st.write(pier_data)
     for index, row in pier_data.iterrows():
         temp_nodes = []
         for idx, model_row in model_nodes.iterrows():
@@ -124,9 +170,9 @@ def determine_ts(pier_data:dict, model_nodes:dict,arc_node_mapping:dict, depth_f
         
         if index == 0:
             break
-    number_ts = number_ts - 1
+   
     
-    return number_ts
+    return number_ts- 1
     
 def find_mesh_points(pier_data:dict, model_nodes:dict,arc_node_mapping:dict, depth_file:str,depth_file_name, velocity_file:str, search_radius = 8,ts_input = 10) -> None:
         my_bar = st.progress(0, text="Processing Piers...")
@@ -160,7 +206,7 @@ def find_mesh_points(pier_data:dict, model_nodes:dict,arc_node_mapping:dict, dep
                     max_value = DxV["DxV"].idxmax()
 
                     result = arc_node_mapping.map(lambda x: x == row["Pier Node"])
-                    row_index, col_index = result.stack()[result.stack()].index[0]
+                    row_index, _ = result.stack()[result.stack()].index[0]
                     
                     
                     

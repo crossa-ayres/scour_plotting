@@ -42,17 +42,25 @@ def generate_pier_scour_df(bridge_data):
     events = events.dropna()
     bank_stations = bridge_data[['Channel Bank Sta.']]
     lateral_stability = bridge_data[['Laterally Stable Channel?']]
+    try:
+        piles = bridge_data[["pile_sta_right_h",	"pile_elev_right_h",	"pile_sta_right_l",	"pile_elev_right_l",	"pile_sta_left_h",	"pile_elev_left_h",	"pile_sta_left_l",	"pile_elev_left_l"]]
+    except:
+        pass
     #lt_deg = bridge_data[['Long Term Deg']]
     #abt_scour_elev = bridge_data[['abut scour 100', 'abut scour 500']]
     abut_stat = bridge_data[['Abt Toe Left Sta.','Abt Toe Right Sta.']]
     abutment_data = bridge_data[['Offset Station','SDAB','SCAB']]
     abutment_data = abutment_data.dropna()
-    scour_data_df = bridge_data[['Bent ID','CS + LTD Depth (100-yr)','CS + LTD Depth (500-yr)','Scour Datum Elev.']]
+   
+    scour_data_df = bridge_data[['Bent ID','Scour Elevation 100yr','Scour Elevation 500yr',"Scour Depth 100yr",	"Scour Depth 500yr", 'Scour Datum Elev.']]
+    scour_data_df = scour_data_df[2:]
+    
     #wse = bridge_data[['WSE 100yr','WSE 500yr']]
     wse = bridge_data[['WSE 100yr Station','WSE 100yr','WSE 500yr Station','WSE 500yr']]
     LTD = bridge_data[['LTD_Station','LTD_Elev']]
     contraction_scour = bridge_data[['CS_Design_Station','CS_Design_Elev','CS_Check_Station','CS_Check_Elev']]
-    scour_data_df = scour_data_df.dropna()
+    
+    
     pier_data_df = bridge_data[['Bent ID',
                                 'Bridge Thickness', 
                                 'Pier Stem Top Width', 
@@ -68,11 +76,13 @@ def generate_pier_scour_df(bridge_data):
                                 'Local Scour Depth (100-yr)',
                                 'Local Scour Depth (500-yr)',
                                 'Scour Elevation 100yr',
-                                'Scour Elevation 500yr']]
-    pier_data_df['Bent ID'] = pier_data_df['Bent ID'].drop_duplicates()
+                                'Scour Elevation 500yr',
+                                "pile_elev_left_l"]]
+    
+    #pier_data_df['Bent ID'] = pier_data_df['Bent ID'].drop_duplicates()
     target_row = pier_data_df.iloc[1]
     pier_data_df = pd.concat([pier_data_df.drop(pier_data_df.index[1]), pd.DataFrame([target_row])]).reset_index(drop=True)
-    
+    all_pile_elements = bridge_data[['Bent ID']]
     
     bridge_low_chord = bridge_data[['Bent CL Sta','Low Chord Elev']]
     target_row = bridge_low_chord.iloc[1]
@@ -84,7 +94,7 @@ def generate_pier_scour_df(bridge_data):
     
     bridge_high_chord = bridge_high_chord.dropna()
     
-    ground_line = bridge_data[['Offset Station', 'Elev']]
+    ground_line = bridge_data[['Offset Station', 'Elev','SDAB','SCAB']]
     ground_line = ground_line.dropna()
     #pier_data_df = pier_data_df.dropna()
     
@@ -93,6 +103,10 @@ def generate_pier_scour_df(bridge_data):
     for index, row in pier_data_df.iterrows():
         pier_data_dict[row['Bent ID']] = row
         individual_pier_ids.append(row['Bent ID'])
+    individual_pier_ids = individual_pier_ids[1:10]
+    
+    individual_pier_ids = [l for l in individual_pier_ids if str(l) != 'nan']
+    
     return [pier_data_dict, 
             individual_pier_ids,
             bridge_low_chord, 
@@ -101,7 +115,13 @@ def generate_pier_scour_df(bridge_data):
             scour_data_df, 
             bank_stations, 
             lateral_stability,
-             wse,events,abutment_data,abut_stat,LTD,contraction_scour]
+             wse,
+             events,
+             abutment_data,
+             abut_stat,
+             LTD,
+             contraction_scour, 
+             piles,all_pile_elements]
 
 def calculate_scour_data(pier_data_dict, pier_id, scour_data_df,ground_line, year):
     """
@@ -115,31 +135,40 @@ def calculate_scour_data(pier_data_dict, pier_id, scour_data_df,ground_line, yea
     Returns:
         list: List containing the calculated scour data for the pier.
     """
-    try:
-        cs_ltd = year[0] # this is just the "CS + LTD Depth (100-year)" string
-        local_scour = year[1] # this is just "Local Scour Dept (100-year) or 500-year" string
-        scour_data_array = []
-        pier_data = pier_data_dict[pier_id]
-        
-        # calculate the left, right, and center stations based on the pier data and the local scour data
-        # The left and right stations are calculated as 2 times the local scour depth away from the pier center line station
-        # The center station is the pier center line station
-        # The left and right stations are used to find the closest stations in the ground line to the scour holes plotted at each pier
-        left = pier_data['Bent CL Sta'] - 2*(scour_data_df[cs_ltd].values[0] - (scour_data_df[cs_ltd].values[0] - pier_data[local_scour]))
-        right = pier_data['Bent CL Sta'] + 2*(scour_data_df[cs_ltd].values[0] - (scour_data_df[cs_ltd].values[0] - pier_data[local_scour]))
-        center = pier_data['Bent CL Sta']
-        left_station = ground_line.iloc[(ground_line['Offset Station']-left).abs().argsort()[:2]]
-        right_station = ground_line.iloc[(ground_line['Offset Station']-right).abs().argsort()[:2]]
-        center_station = ground_line.iloc[(ground_line['Offset Station']-center).abs().argsort()[:2]]
+    #try:
+    cs_ltd = year[0] # this is just the "CS + LTD Depth (100-year)" string
+    local_scour = year[1] # this is just "Local Scour Dept (100-year) or 500-year" string
+    scour_data_array = []
+    
+    pier_data = pier_data_dict[pier_id]
+   
+    scour_data_df = scour_data_df[scour_data_df['Bent ID'] == pier_id]
+    
+    sc_interval = [["Scour Depth 100yr", "SDAB"],["Scour Depth 500yr", "SCAB"]]
+    sc_interval = sc_interval[0]
+    scale = 0.5
+    # calculate the left, right, and center stations based on the pier data and the local scour data
+    # The left and right stations are calculated as 2 times the local scour depth away from the pier center line station
+    # The center station is the pier center line station
+    # The left and right stations are used to find the closest stations in the ground line to the scour holes plotted at each pier
+    left = pier_data['Bent CL Sta'] - scale*(scour_data_df["Scour Depth 100yr"].values[0]) - pier_data['Pier Stem Bottom Width']
+    
+    right = pier_data['Bent CL Sta'] + scale*(scour_data_df["Scour Depth 100yr"].values[0]) + pier_data['Pier Stem Bottom Width']
+    
+    center = pier_data['Bent CL Sta']
+    left_station = ground_line.iloc[(ground_line['Offset Station']-left).abs().argsort()[:2]]
+   
+    right_station = ground_line.iloc[(ground_line['Offset Station']-right).abs().argsort()[:2]]
+    center_station = ground_line.iloc[(ground_line['Offset Station']-center).abs().argsort()[:2]]
 
-        # Append left, center, and right station-elevation pairs
-        scour_data_array.append([pier_data['Bent CL Sta'] - 2*(scour_data_df[cs_ltd].values[0] - (scour_data_df[cs_ltd].values[0] - pier_data[local_scour])),
-                                    left_station['lt_deg'].values[1]])
-        scour_data_array.append([pier_data['Bent CL Sta'], pier_data[year[6]]])                            
-        scour_data_array.append([pier_data['Bent CL Sta'] + 2*(scour_data_df[cs_ltd].values[0] - (scour_data_df[cs_ltd].values[0] - pier_data[local_scour])),
-                                    right_station['lt_deg'].values[1]])
-    except Exception as e:
-        pass
+    # Append left, center, and right station-elevation pairs
+    scour_data_array.append([pier_data['Bent CL Sta'] - scale*(scour_data_df["Scour Depth 100yr"].values[0]),
+                                left_station['SDAB'].values[1]])
+    scour_data_array.append([pier_data['Bent CL Sta'], scour_data_df["Scour Elevation 100yr"].values[0]])                            
+    scour_data_array.append([pier_data['Bent CL Sta'] + scale*(scour_data_df["Scour Depth 100yr"].values[0]),
+                                right_station['SDAB'].values[1]])
+    #except Exception as e:
+    #    pass
     return scour_data_array
 
 def calculate_pier_data(pier_data_dict,pier_id):
@@ -154,6 +183,7 @@ def calculate_pier_data(pier_data_dict,pier_id):
     # Initialize lists to hold the plotting data for the left and right sides of the pier
     pier_plotting_data_left = []
     pier_plotting_data_right = []
+    
     pier_data = pier_data_dict[pier_id]
     #x1, y1
     # Calculate the plotting data for the left and right sides of the pier by taking the pier data and calculating the coordinates based on the pier stem top width, bottom width, footing cap width, and footing width.

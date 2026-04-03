@@ -56,18 +56,23 @@ if __name__ == "__main__":
             st.dataframe(data)
         #plot the stage vs date as an altair plot
         st.write(f"### Stage vs Date Plot for USGS Gage ID: {usgs_station_id} between {lower_threshold} and {upper_threshold} cfs")
-        figure = alt.Chart(data).mark_line(color = "slategray").encode(
+
+        title = alt.TitleParams(f'Stream Stage (ft) for USGS Gage: {usgs_station_id} between {lower_threshold} and {upper_threshold} cfs', anchor='middle', fontSize=24)
+
+        figure = alt.Chart(data, title = title).mark_line(color = "slategray").encode(
+
+            x=alt.X('date:T', axis=alt.Axis(title='Year', labelFontSize=18, titleFontSize=24, format='%Y')),
+
+            y=alt.Y('stage:Q', axis=alt.Axis(title='Stage (ft)', labelFontSize=18, titleFontSize=24))
+
+        ).properties(width=800, height=1200)
+
+        points = alt.Chart(data).mark_circle(color="blue", size = 50).encode(
             x='date:T',
             y='stage:Q'
-        ).properties(
-            width=800,
-            height=600,
-            
         )
-        points = alt.Chart(data).mark_circle(color="black", size = 100).encode(
-            x='date:T',
-            y='stage:Q'
-        )
+
         figure = figure + points
+
         st.altair_chart(figure, use_container_width=True)
         
