@@ -1,11 +1,9 @@
 import pandas as pd 
-import gc
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 from matplotlib.patches import Polygon
-import os
 import numpy as np
 import streamlit as st
 pd.options.mode.copy_on_write = True
@@ -80,7 +78,7 @@ def generate_pier_scour_df(bridge_data):
     
     #pier_data_df['Bent ID'] = pier_data_df['Bent ID'].drop_duplicates()
     target_row = pier_data_df.iloc[1]
-    pier_data_df = pd.concat([pier_data_df.drop(pier_data_df.index[1]), pd.DataFrame([target_row])]).reset_index(drop=True)
+    #pier_data_df = pd.concat([pier_data_df.drop(pier_data_df.index[1]), pd.DataFrame([target_row])]).reset_index(drop=True)
     all_pile_elements = bridge_data[['Bent ID']]
     
     bridge_low_chord = bridge_data[['Bent CL Sta','Low Chord Elev']]
@@ -117,7 +115,7 @@ def generate_pier_scour_df(bridge_data):
             contraction_scour, 
             piles,
             all_pile_elements]
-    gc.collect()
+   
 
 def draw_scourCone_laterallyStable(pier_data, scour_data_df,ground_line, pier_scourCone_shift,scourCone_elev_shift,scour_data_array,recurrance_depth,recurrance_elevation):
     left = pier_data['Bent CL Sta'] - pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]) - pier_data['Pier Stem Bottom Width']

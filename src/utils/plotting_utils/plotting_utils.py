@@ -62,7 +62,7 @@ def generate_figure(pier_data_dict,
     scour_data_check = []
     
     for pier_id in all_pile_elements["Bent ID"].tolist():
-
+        
         pier_plotting_data_left, pier_plotting_data_right,cse_data = calculate_pier_data(pier_data_dict,pier_id)
         #drop nan values from cse data
         cse_data = [x for x in cse_data[0] if not np.isnan(x).any()]
