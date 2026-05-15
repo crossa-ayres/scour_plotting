@@ -7,7 +7,6 @@ dependencies:
   - folium
   - pip
     pip:
-      
       - pandas
       - matplotlib
       - h5py
