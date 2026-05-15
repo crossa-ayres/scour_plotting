@@ -46,8 +46,7 @@ def generate_pier_scour_df(bridge_data):
         piles = bridge_data[["pile_sta_right_h",	"pile_elev_right_h",	"pile_sta_right_l",	"pile_elev_right_l",	"pile_sta_left_h",	"pile_elev_left_h",	"pile_sta_left_l",	"pile_elev_left_l"]]
     except:
         pass
-    #lt_deg = bridge_data[['Long Term Deg']]
-    #abt_scour_elev = bridge_data[['abut scour 100', 'abut scour 500']]
+  
     abut_stat = bridge_data[['Abt Toe Left Sta.','Abt Toe Right Sta.']]
     abutment_data = bridge_data[['Offset Station','SDAB','SCAB']]
     abutment_data = abutment_data.dropna()
@@ -55,9 +54,9 @@ def generate_pier_scour_df(bridge_data):
     scour_data_df = bridge_data[['Bent ID','Scour Elevation 100yr','Scour Elevation 500yr',"Scour Depth 100yr",	"Scour Depth 500yr", 'Scour Datum Elev.']]
     scour_data_df = scour_data_df[2:]
     
-    #wse = bridge_data[['WSE 100yr','WSE 500yr']]
+ 
     wse = bridge_data[['WSE 100yr Station','WSE 100yr','WSE 500yr Station','WSE 500yr']]
-    LTD = bridge_data[['LTD_Station','LTD_Elev']]
+    LTD = bridge_data[['LTD_Station','LTD_Elev','thalweg_elev','CS + LTD Depth (100-yr)','CS + LTD Depth (500-yr)']]
     contraction_scour = bridge_data[['CS_Design_Station','CS_Design_Elev','CS_Check_Station','CS_Check_Elev']]
     
     
@@ -77,7 +76,8 @@ def generate_pier_scour_df(bridge_data):
                                 'Local Scour Depth (500-yr)',
                                 'Scour Elevation 100yr',
                                 'Scour Elevation 500yr',
-                                "pile_elev_left_l"]]
+                                "pile_elev_left_l",
+                                "cse"]]
     
     #pier_data_df['Bent ID'] = pier_data_df['Bent ID'].drop_duplicates()
     target_row = pier_data_df.iloc[1]
@@ -94,9 +94,9 @@ def generate_pier_scour_df(bridge_data):
     
     bridge_high_chord = bridge_high_chord.dropna()
     
-    ground_line = bridge_data[['Offset Station', 'Elev','SDAB','SCAB']]
+    ground_line = bridge_data[['Offset Station', 'Elev']]
     ground_line = ground_line.dropna()
-    #pier_data_df = pier_data_df.dropna()
+  
     
     
 
@@ -123,7 +123,46 @@ def generate_pier_scour_df(bridge_data):
              contraction_scour, 
              piles,all_pile_elements]
 
-def calculate_scour_data(pier_data_dict, pier_id, scour_data_df,ground_line, year):
+def draw_scourCone_laterallyStable(pier_data, scour_data_df,ground_line, pier_scourCone_shift,scourCone_elev_shift,scour_data_array,recurrance_depth,recurrance_elevation):
+    left = pier_data['Bent CL Sta'] - pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]) - pier_data['Pier Stem Bottom Width']
+    right = pier_data['Bent CL Sta'] + pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]) + pier_data['Pier Stem Bottom Width']
+    
+    #center = pier_data['Bent CL Sta']
+    left_station = ground_line.iloc[(ground_line['Offset Station']-left).abs().argsort()[:2]]
+    right_station = ground_line.iloc[(ground_line['Offset Station']-right).abs().argsort()[:2]]
+    
+
+    # Append left, center, and right station-elevation pairs
+    scour_data_array.append([pier_data['Bent CL Sta'] - pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]),
+                                left_station['Elev'].values[1]+scourCone_elev_shift])
+    scour_data_array.append([pier_data['Bent CL Sta']-pier_data['Footing Cap Width']/2-.2, scour_data_df[recurrance_elevation].values[0]])         
+    scour_data_array.append([pier_data['Bent CL Sta']+pier_data['Footing Cap Width']/2+.2, scour_data_df[recurrance_elevation].values[0]])                      
+    scour_data_array.append([pier_data['Bent CL Sta'] + pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]),
+                                right_station['Elev'].values[1]+scourCone_elev_shift])
+    return scour_data_array
+
+def draw_scourCone_laterallyUnstable(pier_data, scour_data_df,ground_line, pier_scourCone_shift,scourCone_elev_shift,scour_data_array,recurrance_depth,recurrance_elevation):
+    
+    left = pier_data['Bent CL Sta'] - pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]) - pier_data['Pier Stem Bottom Width']
+    right = pier_data['Bent CL Sta'] + pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]) + pier_data['Pier Stem Bottom Width']
+    
+   
+    left_station = ground_line.iloc[(ground_line['Offset Station']-left).abs().argsort()[:2]]
+    right_station = ground_line.iloc[(ground_line['Offset Station']-right).abs().argsort()[:2]]
+    
+
+   
+    scour_data_array.append([pier_data['Bent CL Sta'] - pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]),
+                                left_station['Elev'].values[1]+scourCone_elev_shift])
+    scour_data_array.append([pier_data['Bent CL Sta']-pier_data['Footing Cap Width']/2-.2, scour_data_df[recurrance_elevation].values[0]])         
+    scour_data_array.append([pier_data['Bent CL Sta']+pier_data['Footing Cap Width']/2+.2, scour_data_df[recurrance_elevation].values[0]])                      
+    scour_data_array.append([pier_data['Bent CL Sta'] + pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]),
+                                left_station['Elev'].values[1]+scourCone_elev_shift])
+    
+    return scour_data_array
+    
+
+def calculate_scour_data(pier_data_dict,pier_id, scour_data_df,ground_line, recur,pier_scourCone_shift,scourCone_elev_shift,lateral_stability):
     """
     Calculates the scour data for a given pier based on its ID and the year.
     Args:
@@ -136,40 +175,102 @@ def calculate_scour_data(pier_data_dict, pier_id, scour_data_df,ground_line, yea
         list: List containing the calculated scour data for the pier.
     """
     #try:
-    cs_ltd = year[0] # this is just the "CS + LTD Depth (100-year)" string
-    local_scour = year[1] # this is just "Local Scour Dept (100-year) or 500-year" string
+    
     scour_data_array = []
-    
     pier_data = pier_data_dict[pier_id]
-   
     scour_data_df = scour_data_df[scour_data_df['Bent ID'] == pier_id]
-    
-    sc_interval = [["Scour Depth 100yr", "SDAB"],["Scour Depth 500yr", "SCAB"]]
-    sc_interval = sc_interval[0]
-    scale = 0.5
-    # calculate the left, right, and center stations based on the pier data and the local scour data
-    # The left and right stations are calculated as 2 times the local scour depth away from the pier center line station
-    # The center station is the pier center line station
-    # The left and right stations are used to find the closest stations in the ground line to the scour holes plotted at each pier
-    left = pier_data['Bent CL Sta'] - scale*(scour_data_df["Scour Depth 100yr"].values[0]) - pier_data['Pier Stem Bottom Width']
-    
-    right = pier_data['Bent CL Sta'] + scale*(scour_data_df["Scour Depth 100yr"].values[0]) + pier_data['Pier Stem Bottom Width']
-    
-    center = pier_data['Bent CL Sta']
-    left_station = ground_line.iloc[(ground_line['Offset Station']-left).abs().argsort()[:2]]
-   
-    right_station = ground_line.iloc[(ground_line['Offset Station']-right).abs().argsort()[:2]]
-    center_station = ground_line.iloc[(ground_line['Offset Station']-center).abs().argsort()[:2]]
+    if scour_data_df.empty:
+        pass
+    else:
+        if recur == 0:
+            if lateral_stability == "Yes":
+                recurrance_depth = "Scour Depth 100yr"
+                recurrance_elevation = "Scour Elevation 100yr"
 
-    # Append left, center, and right station-elevation pairs
-    scour_data_array.append([pier_data['Bent CL Sta'] - scale*(scour_data_df["Scour Depth 100yr"].values[0]),
-                                left_station['SDAB'].values[1]])
-    scour_data_array.append([pier_data['Bent CL Sta'], scour_data_df["Scour Elevation 100yr"].values[0]])                            
-    scour_data_array.append([pier_data['Bent CL Sta'] + scale*(scour_data_df["Scour Depth 100yr"].values[0]),
-                                right_station['SDAB'].values[1]])
-    #except Exception as e:
-    #    pass
-    return scour_data_array
+                scour_data_array=draw_scourCone_laterallyStable(pier_data, scour_data_df,ground_line,pier_scourCone_shift,scourCone_elev_shift,scour_data_array,recurrance_depth,recurrance_elevation)
+            
+                return scour_data_array
+            elif lateral_stability == "No":
+                st.dataframe(scour_data_df)
+                recurrance_depth = "Scour Depth 100yr"
+                recurrance_elevation = "Scour Elevation 100yr"
+
+                scour_data_array=draw_scourCone_laterallyUnstable(pier_data, scour_data_df,ground_line,pier_scourCone_shift,scourCone_elev_shift,scour_data_array,recurrance_depth,recurrance_elevation)
+                return scour_data_array
+        if recur == 1:
+            if lateral_stability == "Yes":
+                recurrance_depth = "Scour Depth 500yr"
+                recurrance_elevation = "Scour Elevation 500yr"
+                scour_data_array=draw_scourCone_laterallyStable(pier_data, scour_data_df,ground_line,pier_scourCone_shift,scourCone_elev_shift,scour_data_array,recurrance_depth,recurrance_elevation)
+
+                return scour_data_array
+            
+            elif lateral_stability == "No":
+
+                recurrance_depth = "Scour Depth 500yr"
+                recurrance_elevation = "Scour Elevation 500yr"
+
+                scour_data_array=draw_scourCone_laterallyUnstable(pier_data, scour_data_df,ground_line, pier_scourCone_shift,scourCone_elev_shift,scour_data_array,recurrance_depth,recurrance_elevation)
+            
+                return scour_data_array
+        
+            
+def adjust_scourCone(x_new,total_scour_plot,scour_data_copy,left_tieIn_shift,right_tieIn_shift):
+    scour_array_plot = np.array([x_new,total_scour_plot])
+    for station in scour_data_copy:
+        x_new_df = pd.DataFrame(x_new, columns=['Offset Station'])
+        left = min(x_new_df['Offset Station'], key=lambda x: abs(x - station[0][0]))
+        right = min(x_new_df['Offset Station'], key=lambda x: abs(x - station[3][0]))
+        left_index = x_new_df['Offset Station'][x_new_df['Offset Station'] == left].index.tolist()
+        right_index = x_new_df['Offset Station'][x_new_df['Offset Station'] == right].index.tolist()
+        
+        scour_array_plot[0][left_index[0]+left_tieIn_shift:right_index[0]+right_tieIn_shift] = np.nan
+        scour_array_plot[1][left_index[0]+left_tieIn_shift:right_index[0]+right_tieIn_shift] = np.nan
+        
+    return scour_array_plot
+
+
+def draw_totalScour(contraction_station,total_scour_arr,left_idx,left_abut_shift,pier_data_dict,all_pile_elements,ground_line,right_idx,right_abut_shift,contract_elev,left_abut_match,right_abut_match,recur,lateral_stability):
+    if recur == 0:
+        if lateral_stability == "Yes":
+            total_scour_plot = np.array([contraction_station,total_scour_arr])
+            total_scour_plot[1][:(left_idx+left_abut_shift)] = [pier_data_dict[all_pile_elements['Bent ID'][0]]['Scour Elevation 100yr'] for i in range(len(ground_line['Offset Station'][:(left_idx+left_abut_shift)]))]
+            total_scour_plot[1][(right_idx+right_abut_shift):] =[pier_data_dict[all_pile_elements['Bent ID'][1]]['Scour Elevation 100yr'] for i in range(len(total_scour_plot[0])-(right_idx+right_abut_shift))]
+            total_scour_plot[1][left_idx+left_abut_shift:right_idx+right_abut_shift] = [contract_elev[0] for i in range((right_idx+right_abut_shift)-(left_idx+left_abut_shift))]
+            total_scour_plot[1][left_idx+left_abut_match:left_idx+left_abut_shift] = np.nan
+            total_scour_plot[0][left_idx+left_abut_match:left_idx+left_abut_shift] =np.nan
+            
+            total_scour_plot[0][left_idx+left_abut_match:left_idx+left_abut_shift+left_abut_match] =np.nan
+            total_scour_plot[1][right_idx+right_abut_shift:right_idx+right_abut_match] = np.nan
+            total_scour_plot[0][right_idx+right_abut_shift:right_idx+right_abut_match] =np.nan
+            total_scour_plot = total_scour_plot[:, ~np.isnan(total_scour_plot).any(axis=0)]
+            return total_scour_plot
+        elif lateral_stability == "No":
+            total_scour_plot = np.array([contraction_station,total_scour_arr])
+            total_scour_plot[1][:(left_idx+left_abut_shift)] = [pier_data_dict[all_pile_elements['Bent ID'][0]]['Scour Elevation 100yr'] for i in range(len(ground_line['Offset Station'][:(left_idx+left_abut_shift)]))]
+            total_scour_plot[1][(right_idx+right_abut_shift):] =[pier_data_dict[all_pile_elements['Bent ID'][1]]['Scour Elevation 100yr'] for i in range(len(total_scour_plot[0])-(right_idx+right_abut_shift))]
+            total_scour_plot[1][left_idx+left_abut_shift:right_idx+right_abut_shift] = [contract_elev[0] for i in range((right_idx+right_abut_shift)-(left_idx+left_abut_shift))]
+            total_scour_plot[1][left_idx+left_abut_match:left_idx+left_abut_shift] = np.nan
+            total_scour_plot[0][left_idx+left_abut_match:left_idx+left_abut_shift] =np.nan
+       
+            total_scour_plot[0][left_idx+left_abut_match:left_idx+left_abut_shift+left_abut_match] =np.nan
+            total_scour_plot[1][right_idx+right_abut_shift:right_idx+right_abut_match] = np.nan
+            total_scour_plot[0][right_idx+right_abut_shift:right_idx+right_abut_match] =np.nan
+            total_scour_plot = total_scour_plot[:, ~np.isnan(total_scour_plot).any(axis=0)]
+            return total_scour_plot
+    if recur == 1:
+        total_scour_plot = np.array([contraction_station,total_scour_arr])
+        total_scour_plot[1][:(left_idx+left_abut_shift)] = [pier_data_dict[all_pile_elements['Bent ID'][0]]['Scour Elevation 500yr'] for i in range(len(ground_line['Offset Station'][:(left_idx+left_abut_shift)]))]
+        total_scour_plot[1][(right_idx+right_abut_shift):] =[pier_data_dict[all_pile_elements['Bent ID'][1]]['Scour Elevation 500yr'] for i in range(len(total_scour_plot[0])-(right_idx+right_abut_shift))]
+        total_scour_plot[1][left_idx+left_abut_shift:right_idx+right_abut_shift] = [contract_elev[0] for i in range((right_idx+right_abut_shift)-(left_idx+left_abut_shift))]
+
+        total_scour_plot[1][left_idx+left_abut_match:left_idx+left_abut_shift] = np.nan
+        total_scour_plot[0][left_idx+left_abut_match:left_idx+left_abut_shift] =np.nan
+        total_scour_plot[1][right_idx+right_abut_shift:right_idx+right_abut_match] = np.nan
+        total_scour_plot[0][right_idx+right_abut_shift:right_idx+right_abut_match] =np.nan
+        total_scour_plot = total_scour_plot[:, ~np.isnan(total_scour_plot).any(axis=0)]
+        return total_scour_plot
+
 
 def calculate_pier_data(pier_data_dict,pier_id):
     """
@@ -183,6 +284,7 @@ def calculate_pier_data(pier_data_dict,pier_id):
     # Initialize lists to hold the plotting data for the left and right sides of the pier
     pier_plotting_data_left = []
     pier_plotting_data_right = []
+    cse_data = []
     
     pier_data = pier_data_dict[pier_id]
     #x1, y1
@@ -216,5 +318,6 @@ def calculate_pier_data(pier_data_dict,pier_id):
     pier_plotting_data_right.append([pier_data['Bent CL Sta']+(pier_data['Footing Width']/2),pier_data['Bottom of Footing Elev']])
     #x7, y7
     pier_plotting_data_right.append([pier_data['Bent CL Sta'],pier_data['Bottom of Footing Elev']])
+    cse_data.append([pier_data['Bent CL Sta'], pier_data['cse']])
 
-    return pier_plotting_data_left, pier_plotting_data_right
+    return pier_plotting_data_left, pier_plotting_data_right,cse_data
