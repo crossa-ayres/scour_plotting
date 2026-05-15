@@ -1,5 +1,7 @@
 name: plot
 channels:
+  - conda-forge
+  - defaults
   - https://repo.anaconda.com/pkgs/main
   - https://repo.anaconda.com/pkgs/r
   - https://repo.anaconda.com/pkgs/msys2
@@ -18,4 +20,4 @@ dependencies:
   - statsmodels
   - pmdarima
   - matplotlib
-S
+
