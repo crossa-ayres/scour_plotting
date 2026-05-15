@@ -6,7 +6,7 @@ channels:
 dependencies:
   - pandas
   - pathlib
-  - streamlit==1.57.0
+  - streamlit
   - h5py
   - conda-forge::pyproj
   - conda-forge::folium
@@ -17,4 +17,5 @@ dependencies:
   - scipy
   - statsmodels
   - pmdarima
+  - matplotlib
 prefix: C:\Users\crossa\AppData\Local\anaconda3\envs\plot
