@@ -1,6 +1,5 @@
 import pandas as pd 
-import matplotlib
-matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 from matplotlib.patches import Polygon
