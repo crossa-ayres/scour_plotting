@@ -8,7 +8,6 @@ dependencies:
   - pip
     pip:
       - pandas
-      - matplotlib
       - h5py
       - pyproj
       - streamlit
