@@ -1,4 +1,5 @@
 import pandas as pd 
+import threading
 import io
 import warnings
 from PIL import Image
@@ -10,8 +11,7 @@ from utils.plotting_utils.plotting_utils import generate_figure
 
 from utils.plotting_utils.data_processing_utils import recurrence_txt,generate_pier_scour_df
 
-
-if __name__ == "__main__":
+def main():
     st.set_page_config(layout='wide')
     #image = Image.open('./src/Images/peakflow.jpg')
     #st.image(image, use_container_width=True)
@@ -35,59 +35,59 @@ if __name__ == "__main__":
                                 "Is the channel laterally stable?",
                                 ("Yes", "No")
                                 )
-        pier_scourCone_shift = st.sidebar.slider(
+        pier_scourCone_shift = st.sidebar.number_input(
                                 "Scour Cone Slope Scaler",
                                 min_value=0.1,
                                 max_value=2.0,
-                                value=(0.8),step = 0.1 # default range
+                                value=(0.8),step = 0.05 # default range
                                 )
-        scourCone_elev_shift = st.sidebar.slider(
+        scourCone_elev_shift = st.sidebar.number_input(
                                 "Scour Cone Elevation Shift (ft)",
-                                min_value=-10.0,
+                                min_value=-30.0,
                                 max_value=30.0,
-                                value=(0.0),step = 0.5 # default range
+                                value=(0.0),step = 0.25 # default range
                                 )
-        line_smoothing_coeff = st.sidebar.slider(
+        line_smoothing_coeff = st.sidebar.number_input(
                                 "Line Smoothing Coefficient",
                                 min_value=0.0,
                                 max_value=1.0,
                                 value=(0.5),step = 0.1 # default range
                                 )
-        left_tieIn_shift = st.sidebar.slider(
+        left_tieIn_shift = st.sidebar.number_input(
                                 "Left LS Tie-In Shift (ft)",
-                                min_value=-10,
-                                max_value=10,
+                                min_value=-50,
+                                max_value=50,
                                 value=(0),step = 1 # default range
                                 )
-        right_tieIn_shift = st.sidebar.slider(
+        right_tieIn_shift = st.sidebar.number_input(
                                 "Right LS Tie-In Shift (ft)",
-                                min_value=-10,
-                                max_value=10,
+                                min_value=-50,
+                                max_value=50,
                                 value=(0),step = 1 # default range
                                 )
-        left_abut_shift = st.sidebar.slider(
+        left_abut_shift = st.sidebar.number_input(
                                 "Left Contraction Scour Tie-In Shift (ft)",
-                                min_value=-10,
-                                max_value=10,
+                                min_value=-50,
+                                max_value=50,
                                 value=(0),step = 1 # default range
                                 )
-        left_abut_match = st.sidebar.slider(
+        left_abut_match = st.sidebar.number_input(
                                 "Left Abutment Element Tie-In Shift (ft)",
-                                min_value=-10,
-                                max_value=10,
+                                min_value=-50,
+                                max_value=50,
                                 value=(0),step = 1 # default range
                                 )
         
-        right_abut_shift = st.sidebar.slider(
+        right_abut_shift = st.sidebar.number_input(
                                 "Right Contraction Scour Tie-In Shift (ft)",
-                                min_value=-10,
-                                max_value=10,
+                                min_value=-50,
+                                max_value=50,
                                 value=(0),step = 1 # default range
                                 )
-        right_abut_match = st.sidebar.slider(
+        right_abut_match = st.sidebar.number_input(
                                 "Right Abutment Element Tie-In Shift (ft)",
-                                min_value=-10,
-                                max_value=10,
+                                min_value=-50,
+                                max_value=50,
                                 value=(0),step = 1 # default range
                                 )
         
@@ -121,26 +121,27 @@ if __name__ == "__main__":
         st.divider()
         st.header("Scour Figures by Recurrence Interval")
         st.write("The figures below show the scour data for each recurrence interval. You can download each figure by clicking the download button below each plot.")
-        #pier_data_dict = structure_data[0]
-        individual_pier_ids = structure_data[1]
-        bridge_low_chord = structure_data[2]
-        bridge_high_chord = structure_data[3]
-        ground_line = structure_data[4]
-        scour_data_df = structure_data[5]
-        #scour_data_df=st.data_editor(pd.DataFrame(structure_data[5]).T,use_container_width=True).T
-        #scour_data_df = scour_data_df.to_dict()
-        bank_stations = structure_data[6]
-        #lateral_stability = structure_data[7]
-        wse_data = structure_data[8]
-        events = structure_data[9]
-        abutment_data = structure_data[10]
-        abut_stat = structure_data[11]
-        #LTD = structure_data[12]
-        LTD=st.data_editor(pd.DataFrame(structure_data[12]).T,use_container_width=True).T
-        #contraction_scour = structure_data[13]
-        contraction_scour=st.data_editor(pd.DataFrame(structure_data[13]).T,use_container_width=True).T
-        pile_data = structure_data[14]
-        all_pile_elements = structure_data[15]
+
+        bridge_low_chord= structure_data[1] 
+        st.write("Bridge Low Chord Elevation:", bridge_low_chord)
+        bridge_high_chord= structure_data[2] 
+        st.write("Bridge High Chord Elevation:", bridge_high_chord)
+        ground_line= structure_data[3] 
+        st.write("Ground Line Elevation:", ground_line)
+        scour_data_df= structure_data[4]  
+        st.write("Scour Data:", scour_data_df)
+        wse_data= structure_data[5]
+        st.write("Water Surface Elevation (WSE) Data:", wse_data)
+        events= structure_data[6]
+        st.write("Recurrence Interval Events:", events)
+        LTD= structure_data[7]
+        st.write("LTD:", LTD)
+        contraction_scour= structure_data[8]
+        st.write("Contraction Scour Data:", contraction_scour)
+        pile_data= structure_data[9]
+        st.write("Pile Data:", pile_data)
+        all_pile_elements= structure_data[10]
+        st.write("All Pile Elements:", all_pile_elements)
         
         
         
@@ -156,48 +157,44 @@ if __name__ == "__main__":
         i=0
         
         events=events.to_numpy()
-     
+        lb_cw_mc = st.selectbox("Apply Clear Water or Live Bed Contraction Scour to Main Channel?", ("LB", "CW"))
         for year in events[0]:
             if i == 0:
                 recur = 0
-                abutment_elevation = abutment_data['SDAB']
                 wse_station = wse_data['WSE 100yr Station']
                 wse_elev = wse_data['WSE 100yr']
-                contract_sta = contraction_scour['CS_Design_Station']
                 contract_elev = contraction_scour['CS_Design_Elev']
             else:
                 recur = 1
-                abutment_elevation = abutment_data['SCAB']
                 wse_station = wse_data['WSE 500yr Station']
                 wse_elev = wse_data['WSE 500yr']
-                contract_sta = contraction_scour['CS_Check_Station']
                 contract_elev = contraction_scour['CS_Check_Elev']
-            abutment_data_event = [abutment_data['Offset Station'], abutment_elevation]
+
+            event = events[0][i]
             figure = generate_figure(pier_data_dict, 
-                                individual_pier_ids,
-                                bridge_low_chord, 
-                                bridge_high_chord, 
-                                ground_line,
-                                scour_data_df,
-                                bank_stations, 
-                                lateral_stability,
-                                abut_stat,wse_station, wse_elev,
-                                year,events[0][i],
-                                abutment_data_event,
-                                recur,
-                                LTD,
-                                contract_sta,
-                                contract_elev,
-                                pile_data,
-                                all_pile_elements,
-                                pier_scourCone_shift,
-                                line_smoothing_coeff,
-                                left_tieIn_shift,
-                                right_tieIn_shift,
-                                left_abut_shift,
-                                right_abut_shift,
-                                scourCone_elev_shift,
-                                left_abut_match,right_abut_match)
+                          bridge_low_chord, 
+                          bridge_high_chord, 
+                          ground_line,
+                          scour_data_df, 
+                          lateral_stability,
+                          wse_station, 
+                          wse_elev, 
+                          event,
+                          recur,
+                          LTD,
+                          contract_elev,
+                          pile_data,
+                          all_pile_elements,
+                          pier_scourCone_shift,
+                          line_smoothing_coeff,
+                          left_tieIn_shift,
+                          right_tieIn_shift,
+                          left_abut_shift,
+                          right_abut_shift,
+                          scourCone_elev_shift,
+                          left_abut_match,
+                          right_abut_match,
+                          lb_cw_mc)
             st.pyplot(figure)
             
             
@@ -241,3 +238,11 @@ if __name__ == "__main__":
 
 
 
+
+
+if __name__ == "__main__":
+    main()
+    main_thread = threading.Thread(target=main)
+    main_thread.start()
+    main_thread.join()
+    

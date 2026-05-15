@@ -1,5 +1,7 @@
 import pandas as pd 
-
+import gc
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 from matplotlib.patches import Polygon
@@ -41,27 +43,23 @@ def generate_pier_scour_df(bridge_data):
     individual_pier_ids = []
     events = bridge_data[['scour check title',	'scour design interval']]
     events = events.dropna()
-    bank_stations = bridge_data[['Channel Bank Sta.']]
-    lateral_stability = bridge_data[['Laterally Stable Channel?']]
     try:
         piles = bridge_data[["pile_sta_right_h",	"pile_elev_right_h",	"pile_sta_right_l",	"pile_elev_right_l",	"pile_sta_left_h",	"pile_elev_left_h",	"pile_sta_left_l",	"pile_elev_left_l"]]
     except:
         pass
   
-    abut_stat = bridge_data[['Abt Toe Left Sta.','Abt Toe Right Sta.']]
-    abutment_data = bridge_data[['Offset Station','SDAB','SCAB']]
-    abutment_data = abutment_data.dropna()
    
     scour_data_df = bridge_data[['Bent ID','Scour Elevation 100yr','Scour Elevation 500yr',"Scour Depth 100yr",	"Scour Depth 500yr", 'Scour Datum Elev.']]
     scour_data_df = scour_data_df[2:]
     
  
     wse = bridge_data[['WSE 100yr Station','WSE 100yr','WSE 500yr Station','WSE 500yr']]
-    LTD = bridge_data[['LTD_Station','LTD_Elev','thalweg_elev','CS + LTD Depth (100-yr)','CS + LTD Depth (500-yr)']]
+    LTD = bridge_data[['LTD_Station','LTD_Elev','thalweg_elev','CS + LTD Depth (100-yr)','CS + LTD Depth (500-yr)','cs_lb_mc','cs_cw_mc']]
     contraction_scour = bridge_data[['CS_Design_Station','CS_Design_Elev','CS_Check_Station','CS_Check_Elev']]
     
     
     pier_data_df = bridge_data[['Bent ID',
+                                 'Abutment Scour Datum',
                                 'Bridge Thickness', 
                                 'Pier Stem Top Width', 
                                 'Pier Stem Bottom Width',
@@ -109,20 +107,17 @@ def generate_pier_scour_df(bridge_data):
     individual_pier_ids = [l for l in individual_pier_ids if str(l) != 'nan']
     
     return [pier_data_dict, 
-            individual_pier_ids,
             bridge_low_chord, 
             bridge_high_chord, 
             ground_line, 
-            scour_data_df, 
-            bank_stations, 
-            lateral_stability,
-             wse,
-             events,
-             abutment_data,
-             abut_stat,
-             LTD,
-             contraction_scour, 
-             piles,all_pile_elements]
+            scour_data_df,  
+            wse,
+            events,
+            LTD,
+            contraction_scour, 
+            piles,
+            all_pile_elements]
+    gc.collect()
 
 def draw_scourCone_laterallyStable(pier_data, scour_data_df,ground_line, pier_scourCone_shift,scourCone_elev_shift,scour_data_array,recurrance_depth,recurrance_elevation):
     left = pier_data['Bent CL Sta'] - pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]) - pier_data['Pier Stem Bottom Width']
@@ -192,7 +187,6 @@ def calculate_scour_data(pier_data_dict,pier_id, scour_data_df,ground_line, recu
             
                 return scour_data_array
             elif lateral_stability == "No":
-                st.dataframe(scour_data_df)
                 recurrance_depth = "Scour Depth 100yr"
                 recurrance_elevation = "Scour Elevation 100yr"
 
@@ -224,7 +218,6 @@ def adjust_scourCone(x_new,total_scour_plot,scour_data_copy,left_tieIn_shift,rig
         right = min(x_new_df['Offset Station'], key=lambda x: abs(x - station[3][0]))
         left_index = x_new_df['Offset Station'][x_new_df['Offset Station'] == left].index.tolist()
         right_index = x_new_df['Offset Station'][x_new_df['Offset Station'] == right].index.tolist()
-        
         scour_array_plot[0][left_index[0]+left_tieIn_shift:right_index[0]+right_tieIn_shift] = np.nan
         scour_array_plot[1][left_index[0]+left_tieIn_shift:right_index[0]+right_tieIn_shift] = np.nan
         
@@ -271,7 +264,22 @@ def draw_totalScour(contraction_station,total_scour_arr,left_idx,left_abut_shift
         total_scour_plot[0][right_idx+right_abut_shift:right_idx+right_abut_match] =np.nan
         total_scour_plot = total_scour_plot[:, ~np.isnan(total_scour_plot).any(axis=0)]
         return total_scour_plot
+def clean_contractionScour(contract_array_plot,left_idx,left_abut_shift,right_idx,right_abut_shift,left_abut_match,right_abut_match):
+    contract_array_plot[0][:left_idx+left_abut_shift+left_abut_match] = np.nan
+    contract_array_plot[1][:left_idx+left_abut_shift+left_abut_match] = np.nan
+    contract_array_plot[0][right_idx+right_abut_match+right_abut_shift:] = np.nan
+    contract_array_plot[1][right_idx+right_abut_match+right_abut_shift:] = np.nan
 
+    return contract_array_plot
+
+def clean_LTD(ltd_array_plot,left_idx,right_idx):
+    ltd_array_plot[0][:left_idx] = np.nan
+    ltd_array_plot[1][:left_idx] = np.nan
+    ltd_array_plot[0][right_idx:] = np.nan
+    ltd_array_plot[1][right_idx:] = np.nan
+    ltd_array_plot = ltd_array_plot[:, ~np.isnan(ltd_array_plot).any(axis=0)]
+
+    return ltd_array_plot
 
 def calculate_pier_data(pier_data_dict,pier_id):
     """

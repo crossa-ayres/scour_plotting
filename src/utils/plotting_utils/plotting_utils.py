@@ -1,13 +1,13 @@
 import pandas as pd 
-
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 from matplotlib.patches import Polygon
 import os
 import numpy as np
 import streamlit as st
-from .data_processing_utils import calculate_pier_data, calculate_scour_data, adjust_scourCone
-from scipy.interpolate import make_interp_spline
+from .data_processing_utils import calculate_pier_data, calculate_scour_data, adjust_scourCone,clean_contractionScour,clean_LTD
 from scipy.interpolate import make_splrep
 pd.options.mode.copy_on_write = True
 
@@ -17,22 +17,20 @@ pd.options.mode.copy_on_write = True
 
 
 def generate_figure(pier_data_dict, 
-                          individual_pier_ids,
                           bridge_low_chord, 
                           bridge_high_chord, 
                           ground_line,
-                          scour_data_df,
-                          bank_stations, 
+                          scour_data_df, 
                           lateral_stability,
-                          abut_stat, wse_station, wse_elev, 
-                          year,event,abutment_data,recur,
-                          LTD,contract_sta,contract_elev,
+                           wse_station, wse_elev, 
+                          event,recur,
+                          LTD,contract_elev,
                           pile_data,all_pile_elements,
                           pier_scourCone_shift,line_smoothing_coeff,
                           left_tieIn_shift,right_tieIn_shift,
                           left_abut_shift,right_abut_shift,
                           scourCone_elev_shift,
-                          left_abut_match,right_abut_match
+                          left_abut_match,right_abut_match,lb_cw_mc
                           ):
     
     """
@@ -108,13 +106,16 @@ def generate_figure(pier_data_dict,
        
    
         if lateral_stability == 'Yes':
+
             
             x_new = np.linspace(ground_line['Offset Station'].min(), ground_line['Offset Station'].max(), int(len(ground_line['Offset Station'])))
             interpolated_elev = make_splrep(ground_line['Offset Station'], ground_line['Elev'], s=line_smoothing_coeff)(x_new)
             total_scour = interpolated_elev-pier_data_dict[all_pile_elements['Bent ID'][0]]['Local Scour Depth (100-yr)'] 
             ltd_elev_shift =  interpolated_elev-(LTD['thalweg_elev'].values[0]-LTD['LTD_Elev'].values[0])
-            
-            contraction_elevation_arr = interpolated_elev-LTD['CS + LTD Depth (100-yr)'].values[0]
+            if lb_cw_mc == "LB":
+                contraction_elevation_arr = interpolated_elev-LTD['cs_lb_mc'][recur]
+            elif lb_cw_mc == "CW":
+                contraction_elevation_arr = interpolated_elev-LTD['cs_cw_mc'][recur]
             
             left_idx = np.abs(x_new - int(pier_data_dict[all_pile_elements['Bent ID'][0]]['Bent CL Sta'])).argmin()
             right_idx = np.abs(x_new - int(pier_data_dict[all_pile_elements['Bent ID'][1]]['Bent CL Sta'])).argmin()
@@ -129,30 +130,19 @@ def generate_figure(pier_data_dict,
 
             
             scour_array_plot = adjust_scourCone(total_scour[0],total_scour[1],scour_data_design,left_tieIn_shift,right_tieIn_shift)
-    
             ax.plot(scour_array_plot[0], scour_array_plot[1], color='grey', linewidth=1,linestyle='--', label=f'Total Scour: {event}')
+
+
             contract_array_plot = adjust_scourCone(x_new,contraction_elevation_arr ,scour_data_design,left_tieIn_shift,right_tieIn_shift)
-            try:
-                 contract_array_plot[0][:left_idx+left_abut_shift+left_abut_match] = np.nan
-                 contract_array_plot[1][:left_idx+left_abut_shift+left_abut_match] = np.nan
-                 contract_array_plot[0][right_idx+right_abut_match+right_abut_shift:] = np.nan
-                 contract_array_plot[1][right_idx+right_abut_match+right_abut_shift:] = np.nan
-            except Exception as e:
-                pass
-           
+            contract_array_plot = clean_contractionScour(contract_array_plot,left_idx,left_abut_shift,right_idx,right_abut_shift,left_abut_match,right_abut_match)
+          
             line2, = ax.plot(contract_array_plot[0],contract_array_plot[1], color='red', linewidth=1, label=f'Contraction Scour - {event}')
             line2.set_dashes([2, 2, 2, 2,10,2])
             line2.set_dash_capstyle('round')
 
             ltd_array_plot = np.array([x_new,ltd_elev_shift])
-            try:
-                 ltd_array_plot[0][:left_idx] = np.nan
-                 ltd_array_plot[1][:left_idx] = np.nan
-                 ltd_array_plot[0][right_idx:] = np.nan
-                 ltd_array_plot[1][right_idx:] = np.nan
-            except Exception as e:
-                pass
-            ltd_array_plot = ltd_array_plot[:, ~np.isnan(ltd_array_plot).any(axis=0)]
+            ltd_array_plot  = clean_LTD(ltd_array_plot,left_idx,right_idx)
+           
             line3, = ax.plot(ltd_array_plot[0],ltd_array_plot[1], color='black', linewidth=1, label=f'LTD')
             line3.set_dashes([2, 2,10,2])
             line3.set_dash_capstyle('round')
@@ -160,7 +150,13 @@ def generate_figure(pier_data_dict,
         
         elif lateral_stability == 'No':
             total_scour_arr = []
-            contract_scour_depth = LTD['thalweg_elev'].values[0] -LTD['CS + LTD Depth (100-yr)'].values[0]
+            if lb_cw_mc == "LB":
+                contract_scour_depth = LTD['thalweg_elev'].values[0] -LTD['cs_lb_mc'][recur]
+                
+            elif lb_cw_mc == "CW":
+                contract_scour_depth = LTD['thalweg_elev'].values[0] -LTD['cs_cw_mc'][recur]
+                
+            
             contraction_station = np.linspace(ground_line['Offset Station'].min(), ground_line['Offset Station'].max(), int(len(ground_line['Offset Station'])))
             contract_scour_arr = [contract_scour_depth for i in range(int(len(ground_line['Offset Station'])))]
             total_scour_arr = [contract_scour_depth for i in range(int(len(ground_line['Offset Station'])))]
@@ -170,7 +166,7 @@ def generate_figure(pier_data_dict,
             total_scour_plot = np.array([contraction_station,total_scour_arr])
             total_scour_plot[1][:(left_idx+left_abut_match)] = [pier_data_dict[all_pile_elements['Bent ID'][0]]['Scour Elevation 100yr'] for i in range(len(ground_line['Offset Station'][:(left_idx+left_abut_match)]))]
             total_scour_plot[1][(right_idx+right_abut_match):] =[pier_data_dict[all_pile_elements['Bent ID'][1]]['Scour Elevation 100yr'] for i in range(len(total_scour_plot[0])-(right_idx+right_abut_match))]
-            total_scour_plot[1][left_idx+left_abut_shift:right_idx+right_abut_shift] = [contract_elev[0] for i in range((right_idx+right_abut_shift)-(left_idx+left_abut_shift))]
+            total_scour_plot[1][left_idx+left_abut_shift:right_idx+right_abut_shift] = [contract_scour_depth for i in range((right_idx+right_abut_shift)-(left_idx+left_abut_shift))]
             
 
             total_scour_plot[1][left_idx+left_abut_match:left_idx+left_abut_shift] = np.nan
@@ -185,14 +181,8 @@ def generate_figure(pier_data_dict,
            
             
             contract_array_plot = adjust_scourCone(contraction_station,contract_scour_arr,scour_data_design,left_tieIn_shift,right_tieIn_shift)
-            try:
-                 contract_array_plot[0][:left_idx+left_abut_shift+left_abut_match] = np.nan
-                 contract_array_plot[1][:left_idx+left_abut_shift+left_abut_match] = np.nan
-                 contract_array_plot[0][right_idx+right_abut_match+right_abut_shift:] = np.nan
-                 contract_array_plot[1][right_idx+right_abut_match+right_abut_shift:] = np.nan
-            except Exception as e:
-                pass
-            
+            contract_array_plot = clean_contractionScour(contract_array_plot,left_idx,left_abut_shift,right_idx,right_abut_shift,left_abut_match,right_abut_match)
+         
             line2, = ax.plot(contract_array_plot[0],contract_array_plot[1], color='red', linewidth=1, label=f'Contraction Scour - {event}')
             line2.set_dashes([2, 2, 2, 2,10,2])
             line2.set_dash_capstyle('round')
@@ -206,6 +196,7 @@ def generate_figure(pier_data_dict,
 
             x_new = np.linspace(ground_line['Offset Station'].min(), ground_line['Offset Station'].max(), int(len(ground_line['Offset Station'])))
             interpolated_elev = make_splrep(ground_line['Offset Station'], ground_line['Elev'], s=line_smoothing_coeff)(x_new)
+            
             total_scour = interpolated_elev-pier_data_dict[all_pile_elements['Bent ID'][0]]['Local Scour Depth (500-yr)'] 
             #find the index of the value in x_new closest to int(pier_data_dict[all_pile_elements['Bent ID'][0]]['Bent CL Sta'])
             left_idx = np.abs(x_new - int(pier_data_dict[all_pile_elements['Bent ID'][0]]['Bent CL Sta'])).argmin()
@@ -227,28 +218,23 @@ def generate_figure(pier_data_dict,
 
             ltd_elev_shift =  interpolated_elev-(LTD['thalweg_elev'].values[0]-LTD['LTD_Elev'].values[0])
             
-            contraction_elevation_arr = interpolated_elev-LTD['CS + LTD Depth (500-yr)'].values[0]
+            
+            if lb_cw_mc == "LB":
+                contraction_elevation_arr = interpolated_elev-LTD['cs_lb_mc'][recur]
+                
+            elif lb_cw_mc == "CW":
+                contraction_elevation_arr = interpolated_elev-LTD['cs_cw_mc'][recur]
             contract_array_plot = adjust_scourCone(x_new,contraction_elevation_arr ,scour_data_check,left_tieIn_shift,right_tieIn_shift)
-            try:
-                 contract_array_plot[0][:left_idx+left_abut_shift+left_abut_match] = np.nan
-                 contract_array_plot[1][:left_idx+left_abut_shift+left_abut_match] = np.nan
-                 contract_array_plot[0][right_idx+right_abut_match+right_abut_shift:] = np.nan
-                 contract_array_plot[1][right_idx+right_abut_match+right_abut_shift:] = np.nan
-            except Exception as e:
-                pass
+            contract_array_plot = clean_contractionScour(contract_array_plot,left_idx,left_abut_shift,right_idx,right_abut_shift,left_abut_match,right_abut_match)
+          
             line2, = ax.plot(contract_array_plot[0],contract_array_plot[1], color='red', linewidth=1, label=f'Contraction Scour - {event}')
             line2.set_dashes([2, 2, 2, 2,10,2])
             line2.set_dash_capstyle('round')
 
     
             ltd_array_plot = np.array([x_new,ltd_elev_shift])
-            try:
-                 ltd_array_plot[0][:left_idx] = np.nan
-                 ltd_array_plot[1][:left_idx] = np.nan
-                 ltd_array_plot[0][right_idx:] = np.nan
-                 ltd_array_plot[1][right_idx:] = np.nan
-            except Exception as e:
-                pass
+            ltd_array_plot  = clean_LTD(ltd_array_plot,left_idx,right_idx)
+           
             line3, = ax.plot(ltd_array_plot[0],ltd_array_plot[1], color='black', linewidth=1, label=f'LTD')
             line3.set_dashes([2, 2,10,2])
             line3.set_dash_capstyle('round')
@@ -256,7 +242,11 @@ def generate_figure(pier_data_dict,
         elif lateral_stability == 'No':
 
             total_scour_arr = []
-            contract_scour_depth = LTD['thalweg_elev'].values[0] -LTD['CS + LTD Depth (500-yr)'].values[0]
+            if lb_cw_mc == "LB":
+                contract_scour_depth = LTD['thalweg_elev'].values[0] -LTD['cs_lb_mc'][recur]
+                
+            elif lb_cw_mc == "CW":
+                contract_scour_depth = LTD['thalweg_elev'].values[0] -LTD['cs_cw_mc'][recur]
             contraction_station = np.linspace(ground_line['Offset Station'].min(), ground_line['Offset Station'].max(), int(len(ground_line['Offset Station'])))
             total_scour_arr = [contract_scour_depth for i in range(int(len(ground_line['Offset Station'])))]
             contract_scour_arr = [contract_scour_depth for i in range(int(len(ground_line['Offset Station'])))]
@@ -278,13 +268,8 @@ def generate_figure(pier_data_dict,
 
         
             contract_array_plot = adjust_scourCone(contraction_station,contract_scour_arr,scour_data_check,left_tieIn_shift,right_tieIn_shift)
-      
-            contract_array_plot[0][:left_idx+left_abut_shift+left_abut_match] = np.nan
-            contract_array_plot[1][:left_idx+left_abut_shift+left_abut_match] = np.nan
-            contract_array_plot[0][right_idx+right_abut_match+right_abut_shift:] = np.nan
-            contract_array_plot[1][right_idx+right_abut_match+right_abut_shift:] = np.nan
-       
-            
+            contract_array_plot = clean_contractionScour(contract_array_plot,left_idx,left_abut_shift,right_idx,right_abut_shift,left_abut_match,right_abut_match)
+           
             line2, = ax.plot(contract_array_plot[0],contract_array_plot[1], color='red', linewidth=1, label=f'Contraction Scour - {event}')
             line2.set_dashes([2, 2, 2, 2,10,2])
             line2.set_dash_capstyle('round')
@@ -307,9 +292,6 @@ def generate_figure(pier_data_dict,
     plt.hlines(y=wse_elev[0]-.6,xmin = ground_line['Offset Station'][station_marker]-1, xmax = ground_line['Offset Station'][station_marker]+1, color='black',linewidth=1)
     plt.hlines(y=wse_elev[0]-.95,xmin = ground_line['Offset Station'][station_marker]-0.5, xmax = ground_line['Offset Station'][station_marker]+0.5, color='black',linewidth=1)
     
-    
-
-    
     line1 = list(zip(bridge_low_chord['Bent CL Sta'],bridge_low_chord['Low Chord Elev']))
     line2 = list(zip(bridge_high_chord['Bent CL Sta'],bridge_high_chord['High Chord Elev']))
     polygon_points = line1 + line2[::-1]  # Reverse line2 to close the polygon
@@ -318,8 +300,6 @@ def generate_figure(pier_data_dict,
     polygon = Polygon(polygon_points, closed=True, edgecolor='black', facecolor='grey', hatch='///', alpha=0.8)
     ax.add_patch(polygon)
 
-    
-    
     plt.axvline(x=0, color='grey',linewidth=.5)
     y_axis_range = ax.get_ylim()
     y_ticks = range(int(y_axis_range[0]),int(y_axis_range[1]),1)
@@ -346,7 +326,7 @@ def generate_figure(pier_data_dict,
     
     plt.grid(axis='y', color='grey', linestyle=':', linewidth=0.5)
     plt.grid(which='minor', linestyle=':', linewidth='0.5', color='gray')
-    ax.legend()
+    ax.legend(fancybox=True, framealpha=0.5,loc='lower left')
     plt.gcf().set_size_inches(15, 5)
     plt.tight_layout()
     
@@ -354,7 +334,8 @@ def generate_figure(pier_data_dict,
         spine.set_visible(False)
     
     return fig
-
+   
+@st.cache_resource
 def generate_summary_figure(pier_data_dict, 
                           individual_pier_ids,
                           bridge_low_chord, 
