@@ -121,25 +121,25 @@ if bridge_data is not None:
     st.header("Scour Figures by Recurrence Interval")
     st.write("The figures below show the scour data for each recurrence interval. You can download each figure by clicking the download button below each plot.")
 
-    bridge_low_chord= structure_data[1] 
+    bridge_low_chord= dict(filter(lambda item: item[1] is not None, structure_data[1].items()))
     st.write("Bridge Low Chord Elevation:", bridge_low_chord)
-    bridge_high_chord= structure_data[2] 
+    bridge_high_chord= dict(filter(lambda item: item[1] is not None, structure_data[2].items()))
     st.write("Bridge High Chord Elevation:", bridge_high_chord)
-    ground_line= structure_data[3] 
+    ground_line= dict(filter(lambda item: item[1] is not None, structure_data[3].items()))
     st.write("Ground Line Elevation:", ground_line)
-    scour_data_df= structure_data[4]  
+    scour_data_df= dict(filter(lambda item: item[1] is not None, structure_data[4].items()))
     st.write("Scour Data:", scour_data_df)
-    wse_data= structure_data[5]
+    wse_data= dict(filter(lambda item: item[1] is not None, structure_data[5].items()))
     st.write("Water Surface Elevation (WSE) Data:", wse_data)
-    events= structure_data[6]
+    events= dict(filter(lambda item: item[1] is not None, structure_data[6].items()))
     st.write("Recurrence Interval Events:", events)
-    LTD= structure_data[7]
+    LTD= dict(filter(lambda item: item[1] is not None, structure_data[7].items()))
     st.write("LTD:", LTD)
-    contraction_scour= structure_data[8]
+    contraction_scour= dict(filter(lambda item: item[1] is not None, structure_data[8].items()))
     st.write("Contraction Scour Data:", contraction_scour)
-    pile_data= structure_data[9]
+    pile_data= dict(filter(lambda item: item[1] is not None, structure_data[9].items()))
     st.write("Pile Data:", pile_data)
-    all_pile_elements= structure_data[10]
+    all_pile_elements= dict(filter(lambda item: item[1] is not None, structure_data[10].items()))
     st.write("All Pile Elements:", all_pile_elements)
     
     
