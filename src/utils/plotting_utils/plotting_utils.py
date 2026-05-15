@@ -15,7 +15,7 @@ pd.options.mode.copy_on_write = True
 
 
 
-
+@st.cache_resource
 def generate_figure(pier_data_dict, 
                           bridge_low_chord, 
                           bridge_high_chord, 
