@@ -1,12 +1,11 @@
 import pandas as pd 
-import threading
+
 import io
 import warnings
 from PIL import Image
 warnings.simplefilter(action='ignore', category=FutureWarning)
 import streamlit as st
 
-#from utils.plotting_utils.scour_plotting_utils import recurrence_txt,generate_pier_scour_df, generate_figure, generate_summary_figure
 from utils.plotting_utils.plotting_utils import generate_figure
 
 from utils.plotting_utils.data_processing_utils import recurrence_txt,generate_pier_scour_df
