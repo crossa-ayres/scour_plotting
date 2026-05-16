@@ -149,7 +149,7 @@ def create_Mainfigure(main_dict,
     for pile_id in all_pile_elements["Bent ID"].tolist():
        
         pier_data = pier_data_dict[pile_id]
-        ax.scatter(pier_data['Bent CL Sta'], pier_data['High Chord Elev'], color='black', marker=',',markersize=0.1)
+        ax.scatter(pier_data['Bent CL Sta'], pier_data['High Chord Elev'], color='black', marker='o',markersize=0.1)
         ax.text(pier_data['Bent CL Sta'], pier_data['High Chord Elev']+1, f'{pile_id}', ha='center', va='bottom', fontsize=10)
     
     cse_data = []
