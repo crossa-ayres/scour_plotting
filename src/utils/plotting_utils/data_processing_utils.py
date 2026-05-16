@@ -183,8 +183,8 @@ def create_Mainfigure(main_dict, event,all_pile_elements,pier_data_dict,pile_dat
     station_marker = ground_line['Offset Station'].sub(wse_station.mean()).abs().idxmin()-6
     ax.plot(ground_line['Offset Station'][station_marker], wse_elev.values[0]+0.5, color='black', marker = "v", markersize=6)
     plt.hlines(y=wse_elev.values[0]-.25,xmin = ground_line['Offset Station'][station_marker]-2, xmax = ground_line['Offset Station'][station_marker]+2, color='black',linewidth=1)
-    plt.hlines(y=wse_elev[0]-.6,xmin = ground_line['Offset Station'][station_marker]-1, xmax = ground_line['Offset Station'][station_marker]+1, color='black',linewidth=1)
-    plt.hlines(y=wse_elev[0]-.95,xmin = ground_line['Offset Station'][station_marker]-0.5, xmax = ground_line['Offset Station'][station_marker]+0.5, color='black',linewidth=1)
+    plt.hlines(y=wse_elev.values[0]-.6,xmin = ground_line['Offset Station'][station_marker]-1, xmax = ground_line['Offset Station'][station_marker]+1, color='black',linewidth=1)
+    plt.hlines(y=wse_elev.values[0]-.95,xmin = ground_line['Offset Station'][station_marker]-0.5, xmax = ground_line['Offset Station'][station_marker]+0.5, color='black',linewidth=1)
     
     ax.scatter([x[0] for x in cse_data],[x[1] for x in cse_data], color='black', marker='o', label=f'CSE')
  
