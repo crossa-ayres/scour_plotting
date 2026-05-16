@@ -119,7 +119,8 @@ if bridge_data is not None:
    
     scour_data_df=  structure_data[4].dropna().reset_index(drop=True)
     st.subheader("WSE Data:")
-    wse_data= st.data_editor(pd.DataFrame(structure_data[5][:2]).T).T
+    wse_data= st.data_editor(pd.DataFrame(structure_data[5][:2]).T).T.dropna().reset_index(drop=True)
+    st.write(wse_data)
     
     events= structure_data[6].dropna().reset_index(drop=True)
     st.subheader("Contraction Scour Data:")
