@@ -3,6 +3,7 @@ import pandas as pd
 import io
 import warnings
 from PIL import Image
+import gc
 warnings.simplefilter(action='ignore', category=FutureWarning)
 import streamlit as st
 
@@ -204,6 +205,7 @@ if bridge_data is not None:
         figure = buf.getvalue()
         st.download_button(label=f"Download {events[0][i]} Figure", data=figure, file_name=f"scour_plot_{events[0][i]}.png")
         i+=1
+        gc.collect()
     st.divider()
     st.header("Scour Summary Figure")
     st.write("The figure below shows the scour data for all recurrence intervals in a single plot. You can download this figure by clicking the download button below the plot.")
