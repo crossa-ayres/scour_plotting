@@ -9,7 +9,7 @@ import streamlit as st
 
 from utils.plotting_utils.plotting_utils import generate_figure
 
-from utils.plotting_utils.data_processing_utils import recurrence_txt,generate_pier_scour_df
+from utils.plotting_utils.data_processing_utils import create_Mainfigure,generate_pier_scour_df
 
 st.set_page_config(layout='wide')
 #image = Image.open('./src/Images/peakflow.jpg')
@@ -92,7 +92,7 @@ with st.sidebar:
     
 
 
-recurrence_data = recurrence_txt()  
+#recurrence_data = recurrence_txt()  
 
 # Generate scour data based on the flags
 if bridge_data is not None:
@@ -116,7 +116,7 @@ if bridge_data is not None:
     st.divider()
     st.subheader("Structure and Scour Data")
     st.write("The table below shows the structure and scour data that will be used to generate the scour plots. To modify the data, please do so from the scour workbook and re-upload. Data can not be modified within this table.")
-    pier_data_dict=structure_data[0]
+    pier_data_dict=st.data_editor(pd.DataFrame(structure_data[0]).T).T
     
     st.divider()
     st.header("Scour Figures by Recurrence Interval")
@@ -134,21 +134,12 @@ if bridge_data is not None:
     
     events= structure_data[6]
    
-    LTD= structure_data[7]
-    st.write("LTD:", LTD)
-    contraction_scour= structure_data[8]
+    contraction_data= st.data_editor(pd.DataFrame(structure_data[7]).T).T
     
-    pile_data=  structure_data[9]
+    pile_data=  structure_data[8]
    
-    all_pile_elements=  structure_data[10]
+    all_pile_elements=  structure_data[9]
    
-    
-    
-    
-    
-    
-
-    
 
     # Display the structure data in a table
     
@@ -157,23 +148,19 @@ if bridge_data is not None:
     i=0
     
     events=events.to_numpy()
-    lb_cw_mc = st.selectbox("Apply Clear Water or Live Bed Contraction Scour to Main Channel?", ("LB", "CW"))
+    cs_condition_mc = st.selectbox("Apply Clear Water or Live Bed Contraction Scour to Main Channel?", ("LB", "CW"))
     for year in events[0]:
         if i == 0:
             recur = 0
             wse_station = wse_data['WSE 100yr Station']
             wse_elev = wse_data['WSE 100yr']
-            contract_elev = contraction_scour['CS_Design_Elev']
         else:
             recur = 1
             wse_station = wse_data['WSE 500yr Station']
             wse_elev = wse_data['WSE 500yr']
-            contract_elev = contraction_scour['CS_Check_Elev']
-
         event = events[0][i]
-        figure = generate_figure(pier_data_dict, 
-                        bridge_low_chord, 
-                        bridge_high_chord, 
+        st.write("generating data for ", event)
+        main_dict = generate_figure(pier_data_dict, 
                         ground_line,
                         scour_data_df, 
                         lateral_stability,
@@ -181,9 +168,7 @@ if bridge_data is not None:
                         wse_elev, 
                         event,
                         recur,
-                        LTD,
-                        contract_elev,
-                        pile_data,
+                        contraction_data,
                         all_pile_elements,
                         pier_scourCone_shift,
                         line_smoothing_coeff,
@@ -194,7 +179,9 @@ if bridge_data is not None:
                         scourCone_elev_shift,
                         left_abut_match,
                         right_abut_match,
-                        lb_cw_mc)
+                        cs_condition_mc)
+        st.write("data generated for ", event)
+        figure = create_Mainfigure(main_dict, event,all_pile_elements,pier_data_dict,pile_data,wse_station, wse_elev,ground_line,bridge_low_chord,bridge_high_chord)
         st.pyplot(figure)
         
         
