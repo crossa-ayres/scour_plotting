@@ -74,6 +74,7 @@ def generate_pier_scour_df(bridge_data):
     
     
     pier_data_df = bridge_data[['Bent ID',
+                                'Bent CL Sta',
                                 'Scour Elevation 100yr',
                                 'Scour Elevation 500yr',
                                 "cse",
@@ -84,7 +85,6 @@ def generate_pier_scour_df(bridge_data):
                                 'Footing Width',
                                 'Footing Cap Height',
                                 'Footing Height',
-                                'Bent CL Sta',
                                 'Bottom of Footing Elev',
                                 'Low Chord Elev',
                                 'High Chord Elev',
