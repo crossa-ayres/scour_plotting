@@ -90,8 +90,13 @@ def generate_figure(pier_data_dict,
     if recur==0:
         if lateral_stability == 'Yes':
             total_scour, contraction_elevation_arr = calc_scourCondition_stable(cs_condition_mc,interpolated_elev,contraction_data,recur)
-            ltd_elev_shift =  interpolated_elev-contraction_data['LTD Depth'].values[0]
-            
+            try:
+                ltd_elev_shift =  interpolated_elev-contraction_data['LTD Depth'].values[0]
+                ltd_array_plot = np.array([contraction_station,ltd_elev_shift])
+                ltd_array_plot  = clean_LTD(ltd_array_plot,left_idx,right_idx,left_abut_match,right_abut_match)
+                main_dict[event]["ltd"].append(([ltd_array_plot[0], ltd_array_plot[1]]))
+            except:
+                pass
             total_scour = np.array([contraction_station,total_scour])
             total_scour[1][:left_idx+left_abut_match+left_abut_shift] = pier_data_dict[all_pile_elements['Bent ID'][0]]['Scour Elevation 100yr']
             total_scour[1][right_idx+right_abut_match+right_abut_shift:] =pier_data_dict[all_pile_elements['Bent ID'][1]]['Scour Elevation 100yr']
@@ -107,12 +112,11 @@ def generate_figure(pier_data_dict,
             contract_array_plot = adjust_scourCone(contraction_station,contraction_elevation_arr ,scour_data_design,left_tieIn_shift,right_tieIn_shift)
             contract_array_plot = clean_contractionScour(contract_array_plot,left_idx,left_abut_shift,right_idx,right_abut_shift,left_abut_match,right_abut_match)
 
-            ltd_array_plot = np.array([contraction_station,ltd_elev_shift])
-            ltd_array_plot  = clean_LTD(ltd_array_plot,left_idx,right_idx,left_abut_match,right_abut_match)
+            
 
             main_dict[event]["total_scour"].append(([scour_array_plot[0],scour_array_plot[1]]))
             main_dict[event]["contraction_scour"].append(([contract_array_plot[0],contract_array_plot[1]]))
-            main_dict[event]["ltd"].append(([ltd_array_plot[0], ltd_array_plot[1]]))
+            
         
         elif lateral_stability == 'No':
             total_scour_arr = []
@@ -141,7 +145,10 @@ def generate_figure(pier_data_dict,
 
             main_dict[event]["total_scour"].append((scour_array_plot))
             main_dict[event]["contraction_scour"].append((contract_array_plot))
-            main_dict[event]["ltd"].append(([left_ltd_idx ,right_ltd_idx ], [(contraction_data['Thawleg Elevation'].values[0]-contraction_data['LTD Depth'].values[0]) for i in range(2)]))
+            try:
+                main_dict[event]["ltd"].append(([left_ltd_idx ,right_ltd_idx ], [(contraction_data['Thawleg Elevation'].values[0]-contraction_data['LTD Depth'].values[0]) for i in range(2)]))
+            except:
+                pass
 
     elif recur == 1:
        
@@ -160,17 +167,22 @@ def generate_figure(pier_data_dict,
             
             scour_array_plot = adjust_scourCone(total_scour[0],total_scour[1],scour_data_check,left_tieIn_shift,right_tieIn_shift)
 
-            ltd_elev_shift =  interpolated_elev-contraction_data['LTD Depth'].values[0]
+           
             
             contract_array_plot = adjust_scourCone(contraction_station,contraction_elevation_arr ,scour_data_check,left_tieIn_shift,right_tieIn_shift)
             contract_array_plot = clean_contractionScour(contract_array_plot,left_idx,left_abut_shift,right_idx,right_abut_shift,left_abut_match,right_abut_match)
         
-            ltd_array_plot = np.array([contraction_station,ltd_elev_shift])
-            ltd_array_plot  = clean_LTD(ltd_array_plot,left_idx,right_idx,left_abut_match,right_abut_match)
+            try:
+                ltd_elev_shift =  interpolated_elev-contraction_data['LTD Depth'].values[0]
+                ltd_array_plot = np.array([contraction_station,ltd_elev_shift])
+                ltd_array_plot  = clean_LTD(ltd_array_plot,left_idx,right_idx,left_abut_match,right_abut_match)
+                main_dict[event]["ltd"].append(([ltd_array_plot[0], ltd_array_plot[1]]))
+            except:
+                pass
 
             main_dict[event]["total_scour"].append((scour_array_plot))
             main_dict[event]["contraction_scour"].append((contract_array_plot))
-            main_dict[event]["ltd"].append((ltd_array_plot))
+            
 
         elif lateral_stability == 'No':
 
@@ -198,9 +210,10 @@ def generate_figure(pier_data_dict,
             main_dict[event]["total_scour"].append((scour_array_plot))
             main_dict[event]["contraction_scour"].append((contract_array_plot))
 
-           
-            main_dict[event]["ltd"].append(([left_ltd_idx ,right_ltd_idx], [(contraction_data['Thawleg Elevation'].values[0]-contraction_data['LTD Depth'].values[0]) for i in range(2)]))
-
+            try:
+                main_dict[event]["ltd"].append(([left_ltd_idx ,right_ltd_idx ], [(contraction_data['Thawleg Elevation'].values[0]-contraction_data['LTD Depth'].values[0]) for i in range(2)]))
+            except:
+                pass
 
     return main_dict
    
