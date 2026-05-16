@@ -147,6 +147,7 @@ def create_Mainfigure(main_dict,
     ax.plot(ground_line_interpolated[0][0], ground_line_interpolated[0][1], color='brown', label = "Ground Line")
     #points at the Bent CL Sta for element labels using the bridge high coord elevation as the y
     for pile_id in all_pile_elements["Bent ID"].tolist():
+        st.write("plotting pier data for ", pile_id)
         pier_data = pier_data_dict[pile_id]
         ax.scatter(pier_data['Bent CL Sta'], pier_data['High Chord Elev'], color='black', marker='o')
         ax.text(pier_data['Bent CL Sta'], pier_data['High Chord Elev']+3, f'{pile_id}', ha='center', va='bottom', fontsize=8)
