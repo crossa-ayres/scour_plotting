@@ -123,7 +123,7 @@ if bridge_data is not None:
     
     events= structure_data[6].dropna().reset_index(drop=True)
     st.subheader("Contraction Scour Data:")
-    contraction_data= st.data_editor(pd.DataFrame(structure_data[7][:2]).T).T
+    contraction_data= structure_data[7][:2]
     
     pile_data=  structure_data[8].dropna().reset_index(drop=True)
    
