@@ -55,7 +55,7 @@ def generate_figure(pier_data_dict,
     i=0
     scour_data_design = []
     scour_data_check = []
-    main_dict[event] = { "scour_data": {}, "ltd": [],"contraction_scour": [], "total_scour": [], "ground_line": [], "wse": (wse_station, wse_elev), "pile_left": [], "pile_right":[]}
+    main_dict[event] = { "scour_data": {}, "ltd": [],"contraction_scour": [], "total_scour": [], "ground_line": [], "wse": (wse_station, wse_elev), "pile_left": [], "pile_right":[] }
 
     contraction_station = np.linspace(ground_line['Offset Station'].min(), ground_line['Offset Station'].max(), int(len(ground_line['Offset Station'])))
     
@@ -67,7 +67,7 @@ def generate_figure(pier_data_dict,
     right_ltd_idx = int(pier_data_dict[all_pile_elements['Bent ID'][1]]['Bent CL Sta'])
     
     interpolated_elev = make_splrep(ground_line['Offset Station'], ground_line['Elev'], s=line_smoothing_coeff)(contraction_station)
-    
+
     if not main_dict[event]["ground_line"]:
         main_dict[event]["ground_line"].append(([contraction_station, interpolated_elev]))
 
@@ -108,7 +108,7 @@ def generate_figure(pier_data_dict,
             contract_array_plot = clean_contractionScour(contract_array_plot,left_idx,left_abut_shift,right_idx,right_abut_shift,left_abut_match,right_abut_match)
 
             ltd_array_plot = np.array([contraction_station,ltd_elev_shift])
-            ltd_array_plot  = clean_LTD(ltd_array_plot,left_idx,right_idx)
+            ltd_array_plot  = clean_LTD(ltd_array_plot,left_idx,right_idx,left_abut_match,right_abut_match)
 
             main_dict[event]["total_scour"].append(([scour_array_plot[0],scour_array_plot[1]]))
             main_dict[event]["contraction_scour"].append(([contract_array_plot[0],contract_array_plot[1]]))
@@ -160,13 +160,13 @@ def generate_figure(pier_data_dict,
             
             scour_array_plot = adjust_scourCone(total_scour[0],total_scour[1],scour_data_check,left_tieIn_shift,right_tieIn_shift)
 
-            ltd_elev_shift =  interpolated_elev-(contraction_data['Thawleg Elevation'].values[0]-contraction_data['LTD Depth'].values[0])
+            ltd_elev_shift =  interpolated_elev-contraction_data['LTD Depth'].values[0]
             
             contract_array_plot = adjust_scourCone(contraction_station,contraction_elevation_arr ,scour_data_check,left_tieIn_shift,right_tieIn_shift)
             contract_array_plot = clean_contractionScour(contract_array_plot,left_idx,left_abut_shift,right_idx,right_abut_shift,left_abut_match,right_abut_match)
         
             ltd_array_plot = np.array([contraction_station,ltd_elev_shift])
-            ltd_array_plot  = clean_LTD(ltd_array_plot,left_idx,right_idx)
+            ltd_array_plot  = clean_LTD(ltd_array_plot,left_idx,right_idx,left_abut_match,right_abut_match)
 
             main_dict[event]["total_scour"].append((scour_array_plot))
             main_dict[event]["contraction_scour"].append((contract_array_plot))

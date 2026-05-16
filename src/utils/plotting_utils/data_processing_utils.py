@@ -74,6 +74,9 @@ def generate_pier_scour_df(bridge_data):
     
     
     pier_data_df = bridge_data[['Bent ID',
+                                'Scour Elevation 100yr',
+                                'Scour Elevation 500yr',
+                                "cse",
                                 'Bridge Thickness', 
                                 'Pier Stem Top Width', 
                                 'Pier Stem Bottom Width',
@@ -85,10 +88,7 @@ def generate_pier_scour_df(bridge_data):
                                 'Bottom of Footing Elev',
                                 'Low Chord Elev',
                                 'High Chord Elev',
-                                'Scour Elevation 100yr',
-                                'Scour Elevation 500yr',
-                                "pile_elev_left_l",
-                                "cse"]]
+                                ]]
     
     pier_data_df['Bent ID'] = pier_data_df['Bent ID'].drop_duplicates()
     target_row = pier_data_df.iloc[1]
@@ -128,13 +128,16 @@ def generate_pier_scour_df(bridge_data):
 
 
 
-def create_Mainfigure(main_dict, event,all_pile_elements,pier_data_dict,pile_data,wse_station, wse_elev,ground_line,bridge_low_chord,bridge_high_chord):
+def create_Mainfigure(main_dict, event,all_pile_elements,pier_data_dict,pile_data,wse_station, wse_elev,ground_line,bridge_low_chord,bridge_high_chord,contraction_data):
     fig, ax = plt.subplots()
     i=0
     ground_line_interpolated = main_dict[event]["ground_line"]
     ax.plot(ground_line_interpolated[0][0], ground_line_interpolated[0][1], color='brown', label = "Ground Line")
+    cse_data = []
+    
     for pier_id in all_pile_elements["Bent ID"].tolist():
-        pier_plotting_data_left, pier_plotting_data_right,cse_data = calculate_pier_data(pier_data_dict, pier_id)
+        pier_plotting_data_left, pier_plotting_data_right,cse = calculate_pier_data(pier_data_dict, pier_id,cse_data)
+        
         ax.plot(*zip(*pier_plotting_data_left), color='black')
         ax.plot(*zip(*pier_plotting_data_right), color='black')
         scour_data_array=main_dict[event]["scour_data"][pier_id]
@@ -147,6 +150,8 @@ def create_Mainfigure(main_dict, event,all_pile_elements,pier_data_dict,pile_dat
             except:
                 pass
 
+    #plot cse data as points
+  
     
     scour_array_plot = main_dict[event]["total_scour"]
     contract_array_plot = main_dict[event]["contraction_scour"]
@@ -163,9 +168,13 @@ def create_Mainfigure(main_dict, event,all_pile_elements,pier_data_dict,pile_dat
     line2.set_dashes([2, 2, 2, 2,10,2])
     line2.set_dash_capstyle('round')
 
-    line3, = ax.plot(ltd_array_plot[0][0],ltd_array_plot[0][1], color='black', linewidth=1.25, label=f'LTD')
-    line3.set_dashes([2,10,8, 2,10,2])
-    line3.set_dash_capstyle('round')
+    if contraction_data['LTD Depth'].values[0] != 0:
+        line3, = ax.plot(ltd_array_plot[0][0],ltd_array_plot[0][1], color='black', linewidth=1.25, label=f'LTD')
+        line3.set_dashes([2,10,8, 2,10,2])
+        line3.set_dash_capstyle('round')
+    
+
+
     for index, row in pile_data.iterrows():
         ax.plot([row['pile_sta_left_l'], row['pile_sta_left_h']], [row['pile_elev_left_l'], row['pile_elev_left_h']], color='black', linewidth=1.5)
         ax.plot([row['pile_sta_right_l'], row['pile_sta_right_h']], [row['pile_elev_right_l'], row['pile_elev_right_h']], color='black', linewidth=1.5)
@@ -177,6 +186,8 @@ def create_Mainfigure(main_dict, event,all_pile_elements,pier_data_dict,pile_dat
     plt.hlines(y=wse_elev[0]-.6,xmin = ground_line['Offset Station'][station_marker]-1, xmax = ground_line['Offset Station'][station_marker]+1, color='black',linewidth=1)
     plt.hlines(y=wse_elev[0]-.95,xmin = ground_line['Offset Station'][station_marker]-0.5, xmax = ground_line['Offset Station'][station_marker]+0.5, color='black',linewidth=1)
     
+    ax.scatter([x[0] for x in cse_data],[x[1] for x in cse_data], color='black', marker='o', label=f'CSE')
+ 
     line1 = list(zip(bridge_low_chord['Bent CL Sta'],bridge_low_chord['Low Chord Elev']))
     line2 = list(zip(bridge_high_chord['Bent CL Sta'],bridge_high_chord['High Chord Elev']))
     polygon_points = line1 + line2[::-1]  # Reverse line2 to close the polygon
@@ -402,16 +413,17 @@ def clean_contractionScour(contract_array_plot,left_idx,left_abut_shift,right_id
 
     return contract_array_plot
 
-def clean_LTD(ltd_array_plot,left_idx,right_idx):
-    ltd_array_plot[0][:left_idx] = np.nan
-    ltd_array_plot[1][:left_idx] = np.nan
-    ltd_array_plot[0][right_idx:] = np.nan
-    ltd_array_plot[1][right_idx:] = np.nan
-    ltd_array_plot = ltd_array_plot[:, ~np.isnan(ltd_array_plot).any(axis=0)]
+def clean_LTD(ltd_array_plot,left_idx,right_idx,left_abut_match,right_abut_match):
+    
+    ltd_array_plot[0][:left_idx+left_abut_match] = np.nan
+    ltd_array_plot[1][:left_idx+left_abut_match] = np.nan
+    ltd_array_plot[0][right_idx+right_abut_match:] = np.nan
+    ltd_array_plot[1][right_idx+right_abut_match:] = np.nan
+    #ltd_array_plot = ltd_array_plot[:, ~np.isnan(ltd_array_plot).any(axis=0)]
 
     return ltd_array_plot
 
-def calculate_pier_data(pier_data_dict,pier_id):
+def calculate_pier_data(pier_data_dict,pier_id,cse_data):
     """
     Calculates the plotting data for a pier based on its ID.
     Args:
@@ -423,7 +435,7 @@ def calculate_pier_data(pier_data_dict,pier_id):
     # Initialize lists to hold the plotting data for the left and right sides of the pier
     pier_plotting_data_left = []
     pier_plotting_data_right = []
-    cse_data = []
+    cse_data 
     
     pier_data = pier_data_dict[pier_id]
     #x1, y1

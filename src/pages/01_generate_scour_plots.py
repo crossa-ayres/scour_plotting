@@ -48,7 +48,7 @@ with st.sidebar:
     line_smoothing_coeff = st.sidebar.number_input(
                             "Line Smoothing Coefficient",
                             min_value=0.0,
-                            max_value=1.0,
+                            max_value=10.0,
                             value=(0.5),step = 0.1 # default range
                             )
     left_tieIn_shift = st.sidebar.number_input(
@@ -101,37 +101,37 @@ if bridge_data is not None:
 
     st.divider()
     st.subheader("Structure and Scour Data")
-    st.write("The table below shows the structure and scour data that will be used to generate the scour plots. To modify the data, please do so from the scour workbook and re-upload. Data can not be modified within this table.")
     pier_data_dict=st.data_editor(pd.DataFrame(structure_data[0]).T).T
     
     st.divider()
+    
+    all_pile_elements=  structure_data[9]
+    #find the number of rows in the pier data dict and write it to the streamlit app
+    #delete all nan values from all_pile_elements and reset the index
+    all_pile_elements = all_pile_elements.dropna().reset_index(drop=True)
+    
+    st.subheader("Bridge Deck Geometry Data:")
+    bridge_low_chord= st.data_editor(pd.DataFrame(structure_data[1]).T).T.dropna().reset_index(drop=True)
+   
+    bridge_high_chord= st.data_editor(pd.DataFrame(structure_data[2]).T).T.dropna().reset_index(drop=True)
+   
+    ground_line= structure_data[3].dropna().reset_index(drop=True)
+   
+    scour_data_df=  structure_data[4].dropna().reset_index(drop=True)
+    st.subheader("WSE Data:")
+    wse_data= st.data_editor(pd.DataFrame(structure_data[5][:2]).T).T
+    
+    events= structure_data[6].dropna().reset_index(drop=True)
+    st.subheader("Contraction Scour Data:")
+    contraction_data= st.data_editor(pd.DataFrame(structure_data[7][:2]).T).T
+    
+    pile_data=  structure_data[8].dropna().reset_index(drop=True)
+   
+    all_pile_elements=  structure_data[9].dropna().reset_index(drop=True)
+
+    i=0
     st.header("Scour Figures by Recurrence Interval")
     st.write("The figures below show the scour data for each recurrence interval. You can download each figure by clicking the download button below each plot.")
-
-    bridge_low_chord= structure_data[1]
-   
-    bridge_high_chord= structure_data[2]
-   
-    ground_line= structure_data[3]
-   
-    scour_data_df=  structure_data[4]
-   
-    wse_data= structure_data[5]
-    
-    events= structure_data[6]
-   
-    contraction_data= st.data_editor(pd.DataFrame(structure_data[7]).T).T
-    
-    pile_data=  structure_data[8]
-   
-    all_pile_elements=  structure_data[9]
-   
-
-    # Display the structure data in a table
-    
-    
-    # Generate scour plots for each recurrence interval
-    i=0
     
     events=events.to_numpy()
     cs_condition_mc = st.selectbox("Apply Clear Water or Live Bed Contraction Scour to Main Channel?", ("LB", "CW"))
@@ -167,7 +167,17 @@ if bridge_data is not None:
                         right_abut_match,
                         cs_condition_mc)
         st.write("data generated for ", event)
-        figure = create_Mainfigure(main_dict, event,all_pile_elements,pier_data_dict,pile_data,wse_station, wse_elev,ground_line,bridge_low_chord,bridge_high_chord)
+        figure = create_Mainfigure(main_dict, 
+                                   event,
+                                   all_pile_elements,
+                                   pier_data_dict,
+                                   pile_data,
+                                   wse_station, 
+                                   wse_elev,
+                                   ground_line,
+                                   bridge_low_chord,
+                                   bridge_high_chord,
+                                   contraction_data)
         st.pyplot(figure)
         
         
@@ -180,35 +190,4 @@ if bridge_data is not None:
         i+=1
      
     st.divider()
-    st.header("Scour Summary Figure")
-    st.write("The figure below shows the scour data for all recurrence intervals in a single plot. You can download this figure by clicking the download button below the plot.")
-    # Generate the summary figure for all recurrence intervals
-    """
-    summary_figure = generate_summary_figure(pier_data_dict, 
-                        individual_pier_ids,
-                        bridge_low_chord, 
-                        bridge_high_chord, 
-                        ground_line,
-                        scour_data_df,
-                        bank_stations, 
-                        lateral_stability,
-                        lt_deg, 
-                        abt_scour_elev, 
-                        abut_stat, wse_data, 
-                        recurrence_data)
-    st.pyplot(summary_figure)
     
-    #allow user to download the summary figure
-    summary_figure_buf = io.BytesIO()
-    summary_figure.savefig(summary_figure_buf, format="png")
-    summary_figure_buf.seek(0)
-    summary_figure = summary_figure_buf.getvalue()
-    st.download_button(label="Download Summary Figure", data=summary_figure, file_name="scour_summary_plot.png")
-    """
-    
-                        
-
-    
-
-
-
