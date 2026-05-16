@@ -115,30 +115,30 @@ if bridge_data is not None:
     st.divider()
     st.subheader("Structure and Scour Data")
     st.write("The table below shows the structure and scour data that will be used to generate the scour plots. To modify the data, please do so from the scour workbook and re-upload. Data can not be modified within this table.")
-    pier_data_dict=structure_data[0]
-    #st.data_editor(pd.DataFrame(structure_data[0]).T,use_container_width=True).T
+    pier_data_dict=st.data_editor(pd.DataFrame(structure_data[0]).T,use_container_width=True).T
+    
     st.divider()
     st.header("Scour Figures by Recurrence Interval")
     st.write("The figures below show the scour data for each recurrence interval. You can download each figure by clicking the download button below each plot.")
 
     bridge_low_chord= structure_data[1]
-    st.write("Bridge Low Chord Elevation:", bridge_low_chord)
+   
     bridge_high_chord= structure_data[2]
-    st.write("Bridge High Chord Elevation:", bridge_high_chord)
+   
     ground_line= structure_data[3]
-    st.write("Ground Line Elevation:", ground_line)
+   
     scour_data_df=  structure_data[4]
-    st.write("Scour Data:", scour_data_df)
+   
     wse_data= structure_data[5]
-    st.write("Water Surface Elevation (WSE) Data:", wse_data)
+    
     events= structure_data[6]
-    st.write("Recurrence Interval Events:", events)
+   
     LTD= structure_data[7]
     st.write("LTD:", LTD)
     contraction_scour= structure_data[8]
-    st.write("Contraction Scour Data:", contraction_scour)
+    
     pile_data=  structure_data[9]
-    st.write("Pile Data:", pile_data)
+   
     all_pile_elements=  structure_data[10]
    
     
