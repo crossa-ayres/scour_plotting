@@ -116,7 +116,7 @@ if bridge_data is not None:
     st.divider()
     st.subheader("Structure and Scour Data")
     st.write("The table below shows the structure and scour data that will be used to generate the scour plots. To modify the data, please do so from the scour workbook and re-upload. Data can not be modified within this table.")
-    pier_data_dict=st.data_editor(pd.DataFrame(structure_data[0]).T,use_container_width=True).T
+    pier_data_dict=structure_data[0]
     
     st.divider()
     st.header("Scour Figures by Recurrence Interval")
