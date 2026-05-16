@@ -99,19 +99,6 @@ if bridge_data is not None:
     structure_data = generate_pier_scour_df(bridge_data)
     
 
-    # Unpack the structure data
-    """
-    pier_data_dict, 
-        individual_pier_ids,
-        bridge_low_chord, 
-        bridge_high_chord, 
-        ground_line, 
-        scour_data_df, 
-        bank_stations, 
-        lateral_stability,
-            wse,events,abutment_data
-    """
-    #pier_data_dict= pd.DataFrame(structure_data[0])
     st.divider()
     st.subheader("Structure and Scour Data")
     st.write("The table below shows the structure and scour data that will be used to generate the scour plots. To modify the data, please do so from the scour workbook and re-upload. Data can not be modified within this table.")

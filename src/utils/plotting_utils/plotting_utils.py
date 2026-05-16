@@ -62,6 +62,9 @@ def generate_figure(pier_data_dict,
     left_idx = np.abs(contraction_station - int(pier_data_dict[all_pile_elements['Bent ID'][0]]['Bent CL Sta'])).argmin()
     
     right_idx = np.abs(contraction_station - int(pier_data_dict[all_pile_elements['Bent ID'][1]]['Bent CL Sta'])).argmin()
+
+    left_ltd_idx = int(pier_data_dict[all_pile_elements['Bent ID'][0]]['Bent CL Sta'])
+    right_ltd_idx = int(pier_data_dict[all_pile_elements['Bent ID'][1]]['Bent CL Sta'])
     
     interpolated_elev = make_splrep(ground_line['Offset Station'], ground_line['Elev'], s=line_smoothing_coeff)(contraction_station)
     
@@ -138,7 +141,7 @@ def generate_figure(pier_data_dict,
 
             main_dict[event]["total_scour"].append((scour_array_plot))
             main_dict[event]["contraction_scour"].append((contract_array_plot))
-            main_dict[event]["ltd"].append(([left_idx,right_idx], [(contraction_data['Thawleg Elevation'].values[0]-contraction_data['LTD Depth'].values[0]) for i in range(2)]))
+            main_dict[event]["ltd"].append(([left_ltd_idx ,right_ltd_idx ], [(contraction_data['Thawleg Elevation'].values[0]-contraction_data['LTD Depth'].values[0]) for i in range(2)]))
 
     elif recur == 1:
        
@@ -196,7 +199,7 @@ def generate_figure(pier_data_dict,
             main_dict[event]["contraction_scour"].append((contract_array_plot))
 
            
-            main_dict[event]["ltd"].append(([left_idx,right_idx], [(contraction_data['Thawleg Elevation'].values[0]-contraction_data['LTD Depth'].values[0]) for i in range(2)]))
+            main_dict[event]["ltd"].append(([left_ltd_idx ,right_ltd_idx], [(contraction_data['Thawleg Elevation'].values[0]-contraction_data['LTD Depth'].values[0]) for i in range(2)]))
 
 
     return main_dict
