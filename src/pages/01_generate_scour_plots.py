@@ -139,8 +139,9 @@ if bridge_data is not None:
     contraction_data= structure_data[7][:2]
     
     pile_data=  structure_data[8].dropna().reset_index(drop=True)
-   
-    all_pile_elements=  structure_data[9].dropna().reset_index(drop=True)
+    
+    st.subheader("All Pile Element Labels:")
+    all_pile_elements=  st.data_editor(pd.DataFrame(structure_data[9]).T).T.dropna().reset_index(drop=True)
 
     i=0
     st.header("Scour Figures by Recurrence Interval")
