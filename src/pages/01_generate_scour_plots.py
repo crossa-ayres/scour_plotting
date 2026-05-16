@@ -131,7 +131,7 @@ if bridge_data is not None:
     st.write("Scour Data:", scour_data_df)
     wse_data= dict(filter(lambda item: item[1] is not None, structure_data[5].items()))
     st.write("Water Surface Elevation (WSE) Data:", wse_data)
-    events= dict(filter(lambda item: item[1] is not None, structure_data[6].items()))
+    events= structure_data[6]
     st.write("Recurrence Interval Events:", events)
     LTD= dict(filter(lambda item: item[1] is not None, structure_data[7].items()))
     st.write("LTD:", LTD)
