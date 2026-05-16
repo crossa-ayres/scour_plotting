@@ -38,26 +38,42 @@ def generate_pier_scour_df(bridge_data):
     """
     
     pier_data_dict = {}
-    individual_pier_ids = []
-    events = bridge_data[['scour check title',	'scour design interval']]
+    events = bridge_data[['scour check title',	
+                          'scour design interval']]
     events = events.dropna()
     try:
-        piles = bridge_data[["pile_sta_right_h",	"pile_elev_right_h",	"pile_sta_right_l",	"pile_elev_right_l",	"pile_sta_left_h",	"pile_elev_left_h",	"pile_sta_left_l",	"pile_elev_left_l"]]
+        piles = bridge_data[["pile_sta_right_h",
+                             "pile_elev_right_h",
+                             "pile_sta_right_l",
+                             "pile_elev_right_l",
+                             "pile_sta_left_h",	
+                             "pile_elev_left_h",
+                             "pile_sta_left_l",	
+                             "pile_elev_left_l"]]
     except:
         pass
-  
-   
-    scour_data_df = bridge_data[['Bent ID','Scour Elevation 100yr','Scour Elevation 500yr',"Scour Depth 100yr",	"Scour Depth 500yr", 'Scour Datum Elev.']]
-    scour_data_df = scour_data_df[2:]
+    scour_data_df = bridge_data[['Bent ID',
+                                 'Scour Elevation 100yr',
+                                 'Scour Elevation 500yr',
+                                 "Scour Depth 100yr",
+                                 "Scour Depth 500yr"]]
     
- 
-    wse = bridge_data[['WSE 100yr Station','WSE 100yr','WSE 500yr Station','WSE 500yr']]
-    LTD = bridge_data[['LTD_Station','LTD_Elev','thalweg_elev','CS + LTD Depth (100-yr)','CS + LTD Depth (500-yr)','cs_lb_mc','cs_cw_mc']]
-    contraction_scour = bridge_data[['CS_Design_Station','CS_Design_Elev','CS_Check_Station','CS_Check_Elev']]
+    scour_data_df = scour_data_df[2:]
+    wse = bridge_data[['WSE 100yr Station',
+                       'WSE 100yr',
+                       'WSE 500yr Station',
+                       'WSE 500yr']]
+    
+    contraction_data = bridge_data[['Thawleg Elevation',
+                       'LTD Depth',
+                       'CS + LTD Depth (100-yr)',
+                       'CS + LTD Depth (500-yr)',
+                       'CS Live Bed Main Channel - Depth',
+                       'CS Clear Water Main Channel - Depth']]
+    
     
     
     pier_data_df = bridge_data[['Bent ID',
-                                 'Abutment Scour Datum',
                                 'Bridge Thickness', 
                                 'Pier Stem Top Width', 
                                 'Pier Stem Bottom Width',
@@ -69,8 +85,6 @@ def generate_pier_scour_df(bridge_data):
                                 'Bottom of Footing Elev',
                                 'Low Chord Elev',
                                 'High Chord Elev',
-                                'Local Scour Depth (100-yr)',
-                                'Local Scour Depth (500-yr)',
                                 'Scour Elevation 100yr',
                                 'Scour Elevation 500yr',
                                 "pile_elev_left_l",
@@ -99,10 +113,7 @@ def generate_pier_scour_df(bridge_data):
 
     for index, row in pier_data_df.iterrows():
         pier_data_dict[row['Bent ID']] = row
-        individual_pier_ids.append(row['Bent ID'])
-    individual_pier_ids = individual_pier_ids[1:10]
-    
-    individual_pier_ids = [l for l in individual_pier_ids if str(l) != 'nan']
+       
     
     return [pier_data_dict, 
             bridge_low_chord, 
@@ -111,11 +122,128 @@ def generate_pier_scour_df(bridge_data):
             scour_data_df,  
             wse,
             events,
-            LTD,
-            contraction_scour, 
+            contraction_data,
             piles,
             all_pile_elements]
-   
+
+
+
+def create_Mainfigure(main_dict, event,all_pile_elements,pier_data_dict,pile_data,wse_station, wse_elev,ground_line,bridge_low_chord,bridge_high_chord):
+    fig, ax = plt.subplots()
+    i=0
+    ground_line_interpolated = main_dict[event]["ground_line"]
+    ax.plot(ground_line_interpolated[0][0], ground_line_interpolated[0][1], color='brown', label = "Ground Line")
+    for pier_id in all_pile_elements["Bent ID"].tolist():
+        pier_plotting_data_left, pier_plotting_data_right,cse_data = calculate_pier_data(pier_data_dict, pier_id)
+        ax.plot(*zip(*pier_plotting_data_left), color='black')
+        ax.plot(*zip(*pier_plotting_data_right), color='black')
+        scour_data_array=main_dict[event]["scour_data"][pier_id]
+        
+        if pier_id:
+            try:
+                line, = ax.plot(*zip(*scour_data_array), color='black', linewidth=1.25, label=f'Local Scour (LS) At Pier - {pier_id}')
+                line.set_dashes([2, 2, 10, 2])
+                line.set_dash_capstyle('round')
+            except:
+                pass
+
+    
+    scour_array_plot = main_dict[event]["total_scour"]
+    contract_array_plot = main_dict[event]["contraction_scour"]
+    ltd_array_plot = main_dict[event]["ltd"]
+    
+    
+    #plot scour array
+    line1, = ax.plot(scour_array_plot[0][0],scour_array_plot[0][1], color='grey', linewidth=1.25, label=f'Total Scour - {event}')
+    line1.set_dashes([2, 2, 10, 2])
+    line1.set_dash_capstyle('round')
+
+
+    line2, = ax.plot(contract_array_plot[0][0],contract_array_plot[0][1], color='red', linewidth=1.25, label=f'Contraction Scour - {event}')
+    line2.set_dashes([2, 2, 2, 2,10,2])
+    line2.set_dash_capstyle('round')
+
+    line3, = ax.plot(ltd_array_plot[0][0],ltd_array_plot[0][1], color='black', linewidth=1.25, label=f'LTD')
+    line3.set_dashes([2,10,8, 2,10,2])
+    line3.set_dash_capstyle('round')
+    for index, row in pile_data.iterrows():
+        ax.plot([row['pile_sta_left_l'], row['pile_sta_left_h']], [row['pile_elev_left_l'], row['pile_elev_left_h']], color='black', linewidth=1.5)
+        ax.plot([row['pile_sta_right_l'], row['pile_sta_right_h']], [row['pile_elev_right_l'], row['pile_elev_right_h']], color='black', linewidth=1.5)
+    
+    ax.plot( wse_station, wse_elev, color='blue',linewidth=1,linestyle='--', label=f'WSE - {event}')
+    station_marker = ground_line['Offset Station'].sub(wse_station.mean()).abs().idxmin()-6
+    ax.plot(ground_line['Offset Station'][station_marker], wse_elev[0]+0.5, color='black', marker = "v", markersize=6)
+    plt.hlines(y=wse_elev[0]-.25,xmin = ground_line['Offset Station'][station_marker]-2, xmax = ground_line['Offset Station'][station_marker]+2, color='black',linewidth=1)
+    plt.hlines(y=wse_elev[0]-.6,xmin = ground_line['Offset Station'][station_marker]-1, xmax = ground_line['Offset Station'][station_marker]+1, color='black',linewidth=1)
+    plt.hlines(y=wse_elev[0]-.95,xmin = ground_line['Offset Station'][station_marker]-0.5, xmax = ground_line['Offset Station'][station_marker]+0.5, color='black',linewidth=1)
+    
+    line1 = list(zip(bridge_low_chord['Bent CL Sta'],bridge_low_chord['Low Chord Elev']))
+    line2 = list(zip(bridge_high_chord['Bent CL Sta'],bridge_high_chord['High Chord Elev']))
+    polygon_points = line1 + line2[::-1]  # Reverse line2 to close the polygon
+
+    # Create the polygon
+    polygon = Polygon(polygon_points, closed=True, edgecolor='black', facecolor='grey', hatch='///', alpha=0.8)
+    ax.add_patch(polygon)
+
+    plt.axvline(x=0, color='grey',linewidth=.5)
+    y_axis_range = ax.get_ylim()
+    y_ticks = range(int(y_axis_range[0]),int(y_axis_range[1]),1)
+
+    # Add horizontal ticks
+    for y in y_ticks:
+        if y % 5 == 0:
+            plt.hlines(y=y,xmin = -3, xmax = -1, color='black',linewidth=1)
+        else:
+            plt.hlines(y=y,xmin = -2, xmax = -1, color='grey',linewidth=0.5)
+    plt.xlabel('Station [ft]')
+    plt.ylabel('Elevation [ft-NAVD88]')    
+    plt.title(event)
+    
+    
+
+    loc = plticker.MultipleLocator(base=10)
+    loc_major = plticker.MultipleLocator(base=50)
+    ax.xaxis.set_minor_locator(loc)
+    ax.xaxis.set_major_locator(loc_major)
+    plt.grid(axis='x', color='grey', linestyle='-', linewidth=0.5)
+    #minor grid lines on y axis
+
+    
+    plt.grid(axis='y', color='grey', linestyle=':', linewidth=0.5)
+    plt.grid(which='minor', linestyle=':', linewidth='0.5', color='gray')
+    ax.legend(fancybox=True, framealpha=0.5,loc='lower left')
+    plt.gcf().set_size_inches(15, 5)
+    plt.tight_layout()
+    
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    
+    return fig
+
+
+def calc_scourCondition_stable(cs_condition_mc,interpolated_elev,contraction_data,recur):
+    if cs_condition_mc == "LB":
+
+        total_scour = interpolated_elev-contraction_data['CS Live Bed Main Channel - Depth'][recur]
+
+        contraction_elevation_arr = interpolated_elev-contraction_data['CS Live Bed Main Channel - Depth'][recur]
+
+    elif cs_condition_mc == "CW":
+
+        contraction_elevation_arr = interpolated_elev-contraction_data['CS Clear Water Main Channel - Depth'][recur]
+
+        total_scour = interpolated_elev-contraction_data['CS Clear Water Main Channel - Depth'][recur]
+
+    return total_scour, contraction_elevation_arr
+
+def calc_scourCondition_unstable(cs_condition_mc,contraction_data,recur):
+    if cs_condition_mc == "LB":
+        contract_scour_depth = contraction_data['Thawleg Elevation'].values[0] -contraction_data['CS Live Bed Main Channel - Depth'][recur]
+                
+    elif cs_condition_mc == "CW":
+        contract_scour_depth = contraction_data['Thawleg Elevation'].values[0] -contraction_data['CS Clear Water Main Channel - Depth'][recur]
+
+    return contract_scour_depth
 
 def draw_scourCone_laterallyStable(pier_data, scour_data_df,ground_line, pier_scourCone_shift,scourCone_elev_shift,scour_data_array,recurrance_depth,recurrance_elevation):
     left = pier_data['Bent CL Sta'] - pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]) - pier_data['Pier Stem Bottom Width']
@@ -125,12 +253,16 @@ def draw_scourCone_laterallyStable(pier_data, scour_data_df,ground_line, pier_sc
     left_station = ground_line.iloc[(ground_line['Offset Station']-left).abs().argsort()[:2]]
     right_station = ground_line.iloc[(ground_line['Offset Station']-right).abs().argsort()[:2]]
     
-
     # Append left, center, and right station-elevation pairs
     scour_data_array.append([pier_data['Bent CL Sta'] - pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]),
                                 left_station['Elev'].values[1]+scourCone_elev_shift])
-    scour_data_array.append([pier_data['Bent CL Sta']-pier_data['Footing Cap Width']/2-.2, scour_data_df[recurrance_elevation].values[0]])         
-    scour_data_array.append([pier_data['Bent CL Sta']+pier_data['Footing Cap Width']/2+.2, scour_data_df[recurrance_elevation].values[0]])                      
+    
+    scour_data_array.append([pier_data['Bent CL Sta']-pier_data['Footing Cap Width']/2-.2,
+                              scour_data_df[recurrance_elevation].values[0]])         
+    
+    scour_data_array.append([pier_data['Bent CL Sta']+pier_data['Footing Cap Width']/2+.2, 
+                             scour_data_df[recurrance_elevation].values[0]])          
+                
     scour_data_array.append([pier_data['Bent CL Sta'] + pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]),
                                 right_station['Elev'].values[1]+scourCone_elev_shift])
     return scour_data_array
@@ -138,18 +270,18 @@ def draw_scourCone_laterallyStable(pier_data, scour_data_df,ground_line, pier_sc
 def draw_scourCone_laterallyUnstable(pier_data, scour_data_df,ground_line, pier_scourCone_shift,scourCone_elev_shift,scour_data_array,recurrance_depth,recurrance_elevation):
     
     left = pier_data['Bent CL Sta'] - pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]) - pier_data['Pier Stem Bottom Width']
-    right = pier_data['Bent CL Sta'] + pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]) + pier_data['Pier Stem Bottom Width']
     
-   
     left_station = ground_line.iloc[(ground_line['Offset Station']-left).abs().argsort()[:2]]
-    right_station = ground_line.iloc[(ground_line['Offset Station']-right).abs().argsort()[:2]]
     
-
-   
     scour_data_array.append([pier_data['Bent CL Sta'] - pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]),
                                 left_station['Elev'].values[1]+scourCone_elev_shift])
-    scour_data_array.append([pier_data['Bent CL Sta']-pier_data['Footing Cap Width']/2-.2, scour_data_df[recurrance_elevation].values[0]])         
-    scour_data_array.append([pier_data['Bent CL Sta']+pier_data['Footing Cap Width']/2+.2, scour_data_df[recurrance_elevation].values[0]])                      
+    
+    scour_data_array.append([pier_data['Bent CL Sta']-pier_data['Footing Cap Width']/2-.2, 
+                             scour_data_df[recurrance_elevation].values[0]])    
+         
+    scour_data_array.append([pier_data['Bent CL Sta']+pier_data['Footing Cap Width']/2+.2, 
+                             scour_data_df[recurrance_elevation].values[0]])   
+                       
     scour_data_array.append([pier_data['Bent CL Sta'] + pier_scourCone_shift*(scour_data_df[recurrance_depth].values[0]),
                                 left_station['Elev'].values[1]+scourCone_elev_shift])
     
@@ -208,14 +340,14 @@ def calculate_scour_data(pier_data_dict,pier_id, scour_data_df,ground_line, recu
                 return scour_data_array
         
             
-def adjust_scourCone(x_new,total_scour_plot,scour_data_copy,left_tieIn_shift,right_tieIn_shift):
-    scour_array_plot = np.array([x_new,total_scour_plot])
+def adjust_scourCone(contraction_station,total_scour_plot,scour_data_copy,left_tieIn_shift,right_tieIn_shift):
+    scour_array_plot = np.array([contraction_station,total_scour_plot])
     for station in scour_data_copy:
-        x_new_df = pd.DataFrame(x_new, columns=['Offset Station'])
-        left = min(x_new_df['Offset Station'], key=lambda x: abs(x - station[0][0]))
-        right = min(x_new_df['Offset Station'], key=lambda x: abs(x - station[3][0]))
-        left_index = x_new_df['Offset Station'][x_new_df['Offset Station'] == left].index.tolist()
-        right_index = x_new_df['Offset Station'][x_new_df['Offset Station'] == right].index.tolist()
+        contraction_station_df = pd.DataFrame(contraction_station, columns=['Offset Station'])
+        left = min(contraction_station_df['Offset Station'], key=lambda x: abs(x - station[0][0]))
+        right = min(contraction_station_df['Offset Station'], key=lambda x: abs(x - station[3][0]))
+        left_index = contraction_station_df['Offset Station'][contraction_station_df['Offset Station'] == left].index.tolist()
+        right_index = contraction_station_df['Offset Station'][contraction_station_df['Offset Station'] == right].index.tolist()
         scour_array_plot[0][left_index[0]+left_tieIn_shift:right_index[0]+right_tieIn_shift] = np.nan
         scour_array_plot[1][left_index[0]+left_tieIn_shift:right_index[0]+right_tieIn_shift] = np.nan
         
