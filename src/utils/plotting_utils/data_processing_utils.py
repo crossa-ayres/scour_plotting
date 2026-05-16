@@ -76,9 +76,9 @@ def generate_pier_scour_df(bridge_data):
                                 "pile_elev_left_l",
                                 "cse"]]
     
-    #pier_data_df['Bent ID'] = pier_data_df['Bent ID'].drop_duplicates()
+    pier_data_df['Bent ID'] = pier_data_df['Bent ID'].drop_duplicates()
     target_row = pier_data_df.iloc[1]
-    #pier_data_df = pd.concat([pier_data_df.drop(pier_data_df.index[1]), pd.DataFrame([target_row])]).reset_index(drop=True)
+    pier_data_df = pd.concat([pier_data_df.drop(pier_data_df.index[1]), pd.DataFrame([target_row])]).reset_index(drop=True)
     all_pile_elements = bridge_data[['Bent ID']]
     
     bridge_low_chord = bridge_data[['Bent CL Sta','Low Chord Elev']]
