@@ -88,6 +88,18 @@ with st.sidebar:
                             max_value=50,
                             value=(0),step = 1 # default range
                             )
+    fig_width = st.sidebar.number_input(
+                            "Figure Width (in)",
+                            min_value=-50,
+                            max_value=50,
+                            value=(15),step = 1 # default range
+                            )
+    fig_height = st.sidebar.number_input(
+                            "Figure Height (in)",
+                            min_value=-50,
+                            max_value=50,
+                            value=(5),step = 1 # default range
+                            )
     
 
 
@@ -178,7 +190,9 @@ if bridge_data is not None:
                                    ground_line,
                                    bridge_low_chord,
                                    bridge_high_chord,
-                                   contraction_data)
+                                   contraction_data,
+                                   fig_width,
+                                   fig_height)
         st.pyplot(figure)
         
         

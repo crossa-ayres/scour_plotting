@@ -128,7 +128,19 @@ def generate_pier_scour_df(bridge_data):
 
 
 
-def create_Mainfigure(main_dict, event,all_pile_elements,pier_data_dict,pile_data,wse_station, wse_elev,ground_line,bridge_low_chord,bridge_high_chord,contraction_data):
+def create_Mainfigure(main_dict, 
+                      event,
+                      all_pile_elements,
+                      pier_data_dict,
+                      pile_data,
+                      wse_station, 
+                      wse_elev,
+                      ground_line,
+                      bridge_low_chord,
+                      bridge_high_chord,
+                      contraction_data,
+                      fig_width,
+                      fig_height):
     fig, ax = plt.subplots()
     i=0
     ground_line_interpolated = main_dict[event]["ground_line"]
@@ -223,7 +235,7 @@ def create_Mainfigure(main_dict, event,all_pile_elements,pier_data_dict,pile_dat
     plt.grid(axis='y', color='grey', linestyle=':', linewidth=0.5)
     plt.grid(which='minor', linestyle=':', linewidth='0.5', color='gray')
     ax.legend(fancybox=True, framealpha=0.5,loc='lower left')
-    plt.gcf().set_size_inches(15, 5)
+    plt.gcf().set_size_inches(fig_width, fig_height)
     plt.tight_layout()
     
     for spine in ax.spines.values():
