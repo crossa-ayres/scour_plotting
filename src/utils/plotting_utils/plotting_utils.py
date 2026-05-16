@@ -67,7 +67,7 @@ def generate_figure(pier_data_dict,
     
     if not main_dict[event]["ground_line"]:
         main_dict[event]["ground_line"].append(([contraction_station, interpolated_elev]))
-        
+
     for pier_id in all_pile_elements["Bent ID"].tolist():
 
         scour_data_array = calculate_scour_data(pier_data_dict,pier_id, scour_data_df,ground_line, recur,pier_scourCone_shift,scourCone_elev_shift,lateral_stability)
@@ -144,14 +144,7 @@ def generate_figure(pier_data_dict,
        
         if lateral_stability == 'Yes':
             total_scour, contraction_elevation_arr = calc_scourCondition_stable(cs_condition_mc,interpolated_elev,contraction_data,recur)
-            #if cs_condition_mc == "LB":
-            #    total_scour = interpolated_elev-LTD['CS Live Bed Main Channel - Depth'][recur]
-            #    contraction_elevation_arr = interpolated_elev-LTD['CS Live Bed Main Channel - Depth'][recur]
-            #elif cs_condition_mc == "CW":
-            #    contraction_elevation_arr = interpolated_elev-LTD['CS Clear Water Main Channel - Depth'][recur]
-            #    total_scour = interpolated_elev-LTD['CS Clear Water Main Channel - Depth'][recur]
-            #find the index of the value in x_new closest to int(pier_data_dict[all_pile_elements['Bent ID'][0]]['Bent CL Sta'])
-         
+           
             total_scour = np.array([contraction_station,total_scour])
             total_scour[1][:left_idx+left_abut_match+left_abut_shift] = pier_data_dict[all_pile_elements['Bent ID'][0]]['Scour Elevation 500yr']
             total_scour[1][right_idx+right_abut_match+right_abut_shift:] =pier_data_dict[all_pile_elements['Bent ID'][1]]['Scour Elevation 500yr']
@@ -180,11 +173,7 @@ def generate_figure(pier_data_dict,
 
             total_scour_arr = []
             contract_scour_depth = calc_scourCondition_unstable(cs_condition_mc,contraction_data,recur)
-            #if cs_condition_mc == "LB":
-            #    contract_scour_depth = LTD['thalweg_elev'].values[0] -LTD['cs_lb_mc'][recur]
-            #elif cs_condition_mc == "CW":
-            #    contract_scour_depth = LTD['thalweg_elev'].values[0] -LTD['cs_cw_mc'][recur]
-            
+         
             total_scour_arr = [contract_scour_depth for i in range(int(len(ground_line['Offset Station'])))]
             contract_scour_arr = [contract_scour_depth for i in range(int(len(ground_line['Offset Station'])))]
             

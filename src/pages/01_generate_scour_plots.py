@@ -9,11 +9,10 @@ import streamlit as st
 
 from utils.plotting_utils.plotting_utils import generate_figure
 
-from utils.plotting_utils.data_processing_utils import create_Mainfigure,generate_pier_scour_df
+from utils.plotting_utils.data_processing_utils import create_Mainfigure, generate_pier_scour_df
 
 st.set_page_config(layout='wide')
-#image = Image.open('./src/Images/peakflow.jpg')
-#st.image(image, use_container_width=True)
+
 
 
 # Set the title and description of the Streamlit app
