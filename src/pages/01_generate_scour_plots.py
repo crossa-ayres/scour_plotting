@@ -139,7 +139,7 @@ if bridge_data is not None:
     st.write("Contraction Scour Data:", contraction_scour)
     pile_data=  structure_data[9]
     st.write("Pile Data:", pile_data)
-    all_pile_elements=  structure_data[10])
+    all_pile_elements=  structure_data[10]
     st.write("All Pile Elements:", all_pile_elements)
     
     
