@@ -186,12 +186,14 @@ def create_Mainfigure(main_dict,
     line2, = ax.plot(contract_array_plot[0][0],contract_array_plot[0][1], color='red', linewidth=1.25, label=f'Contraction Scour - {event}')
     line2.set_dashes([2, 2, 2, 2,10,2])
     line2.set_dash_capstyle('round')
-
-    if contraction_data['LTD Depth'].values[0] != 0:
-        line3, = ax.plot(ltd_array_plot[0][0],ltd_array_plot[0][1], color='black', linewidth=1.25, label=f'LTD')
-        line3.set_dashes([2,10,8, 2,10,2])
-        line3.set_dash_capstyle('round')
-    
+    try:
+        if contraction_data['LTD Depth'].values[0] != 0:
+            line3, = ax.plot(ltd_array_plot[0][0],ltd_array_plot[0][1], color='black', linewidth=1.25, label=f'LTD')
+            line3.set_dashes([2,10,8, 2,10,2])
+            line3.set_dash_capstyle('round')
+    except:
+        pass
+        
 
 
     for index, row in pile_data.iterrows():
