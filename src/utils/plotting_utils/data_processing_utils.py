@@ -208,7 +208,7 @@ def create_Mainfigure(main_dict,
     plt.hlines(y=wse_elev.values[0]-.95,xmin = ground_line['Offset Station'][station_marker]-0.5, xmax = ground_line['Offset Station'][station_marker]+0.5, color='black',linewidth=1)
     
     st.write([x[0] for x in cse_data], [x[1] for x in cse_data])
-    ax.scatter([x[0] for x in cse_data],[x[1] for x in cse_data], color='black', marker='o', label=f'CSE')
+    ax.scatter([float(x[0]) for x in cse_data],[float(x[1]) for x in cse_data], color='black', marker='o', label=f'CSE')
    
     
  
