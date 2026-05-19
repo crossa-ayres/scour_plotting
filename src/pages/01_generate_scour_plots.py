@@ -134,7 +134,7 @@ if bridge_data is not None:
     wse_data= st.data_editor(pd.DataFrame(structure_data[5][:2]).T).T.dropna().reset_index(drop=True)
    
     
-    events= structure_data[6].dropna().reset_index(drop=True)
+    events= st.data_editor(pd.DataFrame(structure_data[6]).T).T.dropna().reset_index(drop=True)
    
     contraction_data= structure_data[7][:2]
     
