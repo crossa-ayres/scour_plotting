@@ -138,7 +138,7 @@ if bridge_data is not None:
    
     contraction_data= structure_data[7][:2]
     
-    pile_data=  st.data_editor(pd.DataFrame(structure_data[8]).T).T.dropna().reset_index(drop=True)
+    pile_data=  structure_data[8]
     
     
     all_pile_elements= structure_data[9]
