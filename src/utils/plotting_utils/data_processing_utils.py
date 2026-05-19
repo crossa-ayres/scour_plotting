@@ -195,10 +195,12 @@ def create_Mainfigure(main_dict,
         pass
         
 
-
-    for index, row in pile_data.iterrows():
-        ax.plot([row['pile_sta_left_l'], row['pile_sta_left_h']], [row['pile_elev_left_l'], row['pile_elev_left_h']], color='black', linewidth=1.5)
-        ax.plot([row['pile_sta_right_l'], row['pile_sta_right_h']], [row['pile_elev_right_l'], row['pile_elev_right_h']], color='black', linewidth=1.5)
+    try:
+        for index, row in pile_data.iterrows():
+            ax.plot([row['pile_sta_left_l'], row['pile_sta_left_h']], [row['pile_elev_left_l'], row['pile_elev_left_h']], color='black', linewidth=1.5)
+            ax.plot([row['pile_sta_right_l'], row['pile_sta_right_h']], [row['pile_elev_right_l'], row['pile_elev_right_h']], color='black', linewidth=1.5)
+    except:
+        pass
     
     ax.plot( wse_station, wse_elev, color='blue',linewidth=1,linestyle='--', label=f'WSE - {event}')
     station_marker = ground_line['Offset Station'].sub(wse_station.mean()).abs().idxmin()-6
@@ -256,6 +258,7 @@ def create_Mainfigure(main_dict,
         spine.set_visible(False)
     
     return fig
+
 
 
 def calc_scourCondition_stable(cs_condition_mc,interpolated_elev,contraction_data,recur):
