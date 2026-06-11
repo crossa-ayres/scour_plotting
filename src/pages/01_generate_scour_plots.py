@@ -60,13 +60,13 @@ with st.sidebar:
                             )
     
     left_tieIn_shift = st.sidebar.number_input(
-                            "Left LS Tie-In Shift (ft)",
+                            "Left Local Scour Tie-In Shift (ft)",
                             min_value=-50,
                             max_value=50,
                             value=(0),step = 1 # default range
                             )
     right_tieIn_shift = st.sidebar.number_input(
-                            "Right LS Tie-In Shift (ft)",
+                            "Right Local Scour Tie-In Shift (ft)",
                             min_value=-50,
                             max_value=50,
                             value=(0),step = 1 # default range
