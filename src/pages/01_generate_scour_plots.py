@@ -35,7 +35,13 @@ with st.sidebar:
                             ("Yes", "No")
                             )
     cs_condition_mc = st.selectbox("Apply Clear Water or Live Bed Contraction Scour to Main Channel?", ("LB", "CW"))
-    smooth_gl = st.selectbox("Apply smoothing to ground line?", ("Yes", "No"))
+    smooth_gl = st.selectbox("Apply smoothing to ground line? If no, the smoothing coefficient is not applicable.", ("Yes", "No"))
+    line_smoothing_coeff = st.sidebar.number_input(
+                            "Line Smoothing Coefficient",
+                            min_value=0.0,
+                            max_value=10.0,
+                            value=(0.5),step = 0.1 # default range
+                            )
     pier_scourCone_shift = st.sidebar.number_input(
                             "Scour Cone Slope Scaler",
                             min_value=0.1,
@@ -48,12 +54,7 @@ with st.sidebar:
                             max_value=30.0,
                             value=(0.0),step = 0.25 # default range
                             )
-    line_smoothing_coeff = st.sidebar.number_input(
-                            "Line Smoothing Coefficient",
-                            min_value=0.0,
-                            max_value=10.0,
-                            value=(0.5),step = 0.1 # default range
-                            )
+    
     left_tieIn_shift = st.sidebar.number_input(
                             "Left LS Tie-In Shift (ft)",
                             min_value=-50,
