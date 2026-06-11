@@ -28,13 +28,16 @@ with st.sidebar:
     st.header("File Upload")
     st.subheader("Please upload the scour data file.")
     bridge_data = st.file_uploader("Choose a file")
+    st.divider()
     #yes no dropdown for lateral stability
 
     lateral_stability = st.selectbox(
                             "Is the channel laterally stable?",
                             ("Yes", "No")
                             )
+    st.divider()
     cs_condition_mc = st.selectbox("Apply Clear Water or Live Bed Contraction Scour to Main Channel?", ("LB", "CW"))
+    st.divider()
     smooth_gl = st.selectbox("Apply smoothing to ground line? If no, the smoothing coefficient is not applicable.", ("Yes", "No"))
     line_smoothing_coeff = st.sidebar.number_input(
                             "Line Smoothing Coefficient",
@@ -42,6 +45,7 @@ with st.sidebar:
                             max_value=10.0,
                             value=(0.5),step = 0.1 # default range
                             )
+    st.divider()
     pier_scourCone_shift = st.sidebar.number_input(
                             "Scour Cone Slope Scaler",
                             min_value=0.1,
@@ -67,6 +71,7 @@ with st.sidebar:
                             max_value=50,
                             value=(0),step = 1 # default range
                             )
+    st.divider()
     left_abut_shift = st.sidebar.number_input(
                             "Left Contraction Scour Tie-In Shift (ft)",
                             min_value=-50,
@@ -92,6 +97,7 @@ with st.sidebar:
                             max_value=50,
                             value=(0),step = 1 # default range
                             )
+    st.divider()
     fig_width = st.sidebar.number_input(
                             "Figure Width (in)",
                             min_value=-50,
@@ -105,37 +111,13 @@ with st.sidebar:
                             value=(5),step = 1 # default range
                             )
     
-def float_to_bytes(value: float, precision: str = 'f', endian: str = '<') -> bytes:
-    """
-    Convert a float to bytes.
-    
-    Args:
-        value (float): The floating-point number to convert.
-        precision (str): 'f' for 32-bit float, 'd' for 64-bit double.
-        endian (str): '<' for little-endian, '>' for big-endian.
-    
-    Returns:
-        bytes: The byte representation of the float.
-    """
-    if not isinstance(value, (float, int)):
-        raise TypeError("Value must be a float or int.")
-    if precision not in ('f', 'd'):
-        raise ValueError("Precision must be 'f' (32-bit) or 'd' (64-bit).")
-    if endian not in ('<', '>'):
-        raise ValueError("Endian must be '<' (little) or '>' (big).")
-    
-    return struct.pack(endian + precision, float(value))
 
-#recurrence_data = recurrence_txt()  
 
 # Generate scour data based on the flags
 if bridge_data is not None:
     bridge_data = pd.read_csv(bridge_data) 
     structure_data = generate_pier_scour_df(bridge_data)
-    
 
-    st.divider()
-    st.subheader("Structure and Scour Data")
     
     
     st.divider()
