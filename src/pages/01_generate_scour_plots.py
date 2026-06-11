@@ -79,7 +79,7 @@ with st.sidebar:
                             value=(0),step = 1 # default range
                             )
     left_abut_match = st.sidebar.number_input(
-                            "Left Abutment Element Tie-In Shift (ft)",
+                            "Left Abutment Scour Tie-In Shift (ft)",
                             min_value=-50,
                             max_value=50,
                             value=(0),step = 1 # default range
@@ -92,7 +92,7 @@ with st.sidebar:
                             value=(0),step = 1 # default range
                             )
     right_abut_match = st.sidebar.number_input(
-                            "Right Abutment Element Tie-In Shift (ft)",
+                            "Right Abutment Scour Tie-In Shift (ft)",
                             min_value=-50,
                             max_value=50,
                             value=(0),step = 1 # default range
