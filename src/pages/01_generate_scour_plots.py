@@ -151,8 +151,7 @@ if bridge_data is not None:
     ground_line= structure_data[3].dropna().reset_index(drop=True)
    
     scour_data_df=  structure_data[4].dropna().reset_index(drop=True)
-    st.subheader("WSE Data:")
-    wse_data= st.data_editor(pd.DataFrame(structure_data[5][:2]).T).T.dropna().reset_index(drop=True)
+    
    
     
     events= st.data_editor(pd.DataFrame(structure_data[6]).T).T.dropna().reset_index(drop=True)
@@ -186,6 +185,8 @@ if bridge_data is not None:
     #make a list of keys in structure_data[0] if key is not nan
     st.write("Use the table below to adjust the structure bent placement if needed. The Bent CL Sta values can be used to shift the piles left or right.")
     pier_data_dict=st.data_editor(pd.DataFrame(structure_data[0]).T).T
+    st.subheader("WSE Data:")
+    wse_data= st.data_editor(pd.DataFrame(structure_data[5][:2]).T).T.dropna().reset_index(drop=True)
        
        
         
