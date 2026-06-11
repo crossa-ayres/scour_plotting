@@ -14,8 +14,8 @@ if __name__ == "__main__":
     st.header("Input Parameters")
     st.set_page_config(page_title="Data Summary", layout="wide")
     # Example usage:
-    loader = DataLoader(r'data\100.csv')
-    contracted_section_df, approach_section_df, LOB_contraction_df = loader.generate_scour_df()
+    #loader = DataLoader(r'data\100.csv')
+    #contracted_section_df, approach_section_df, LOB_contraction_df = loader.generate_scour_df()
 
     st.title("Data Summary")
 

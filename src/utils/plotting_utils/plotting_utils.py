@@ -26,7 +26,9 @@ def generate_figure(pier_data_dict,
                           scourCone_elev_shift,
                           left_abut_match,
                           right_abut_match,
-                          cs_condition_mc
+                          cs_condition_mc,
+                          smooth_gl,
+                        
                           ):
     
     """
@@ -56,7 +58,9 @@ def generate_figure(pier_data_dict,
     scour_data_design = []
     scour_data_check = []
     main_dict[event] = { "scour_data": {}, "ltd": [],"contraction_scour": [], "total_scour": [], "ground_line": [], "wse": (wse_station, wse_elev), "pile_left": [], "pile_right":[] }
+    main_dict["gl"] = {"ground_line":[]}
 
+    
     contraction_station = np.linspace(ground_line['Offset Station'].min(), ground_line['Offset Station'].max(), int(len(ground_line['Offset Station'])))
     
     left_idx = np.abs(contraction_station - int(pier_data_dict[all_pile_elements['Bent ID'][0]]['Bent CL Sta'])).argmin()
@@ -66,10 +70,13 @@ def generate_figure(pier_data_dict,
     left_ltd_idx = int(pier_data_dict[all_pile_elements['Bent ID'][0]]['Bent CL Sta'])
     right_ltd_idx = int(pier_data_dict[all_pile_elements['Bent ID'][1]]['Bent CL Sta'])
     
-    interpolated_elev = make_splrep(ground_line['Offset Station'], ground_line['Elev'], s=line_smoothing_coeff)(contraction_station)
+    interpolated_elev = make_splrep(contraction_station, ground_line['Elev'], s=line_smoothing_coeff)(contraction_station)
 
-    if not main_dict[event]["ground_line"]:
-        main_dict[event]["ground_line"].append(([contraction_station, interpolated_elev]))
+    if not main_dict["gl"]["ground_line"]:
+        if smooth_gl == 'Yes':
+            main_dict["gl"]["ground_line"].append(([contraction_station, interpolated_elev]))
+        else:
+            main_dict["gl"]["ground_line"].append(([ground_line['Offset Station'], ground_line['Elev']]))
 
     for pier_id in all_pile_elements["Bent ID"].tolist():
 

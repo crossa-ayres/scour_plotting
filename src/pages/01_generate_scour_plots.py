@@ -3,6 +3,7 @@ import pandas as pd
 import io
 import warnings
 from PIL import Image
+import struct
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 import streamlit as st
@@ -101,7 +102,26 @@ with st.sidebar:
                             value=(5),step = 1 # default range
                             )
     
-
+def float_to_bytes(value: float, precision: str = 'f', endian: str = '<') -> bytes:
+    """
+    Convert a float to bytes.
+    
+    Args:
+        value (float): The floating-point number to convert.
+        precision (str): 'f' for 32-bit float, 'd' for 64-bit double.
+        endian (str): '<' for little-endian, '>' for big-endian.
+    
+    Returns:
+        bytes: The byte representation of the float.
+    """
+    if not isinstance(value, (float, int)):
+        raise TypeError("Value must be a float or int.")
+    if precision not in ('f', 'd'):
+        raise ValueError("Precision must be 'f' (32-bit) or 'd' (64-bit).")
+    if endian not in ('<', '>'):
+        raise ValueError("Endian must be '<' (little) or '>' (big).")
+    
+    return struct.pack(endian + precision, float(value))
 
 #recurrence_data = recurrence_txt()  
 
@@ -113,7 +133,7 @@ if bridge_data is not None:
 
     st.divider()
     st.subheader("Structure and Scour Data")
-    pier_data_dict=st.data_editor(pd.DataFrame(structure_data[0]).T).T
+    
     
     st.divider()
     
@@ -123,9 +143,10 @@ if bridge_data is not None:
     all_pile_elements = all_pile_elements.dropna().reset_index(drop=True)
     
     st.subheader("Bridge Deck Geometry Data:")
-    bridge_low_chord= st.data_editor(pd.DataFrame(structure_data[1]).T).T.dropna().reset_index(drop=True)
+    
+    bridge_low_chord= pd.DataFrame(structure_data[1])
    
-    bridge_high_chord= st.data_editor(pd.DataFrame(structure_data[2]).T).T.dropna().reset_index(drop=True)
+    bridge_high_chord= pd.DataFrame(structure_data[2])
    
     ground_line= structure_data[3].dropna().reset_index(drop=True)
    
@@ -149,6 +170,29 @@ if bridge_data is not None:
     
     events=events.to_numpy()
     cs_condition_mc = st.selectbox("Apply Clear Water or Live Bed Contraction Scour to Main Channel?", ("LB", "CW"))
+    smooth_gl = st.selectbox("Apply smoothing to ground line?", ("Yes", "No"))
+    offset_shift = st.number_input("Adjust stationing shift for groundline", min_value=-50, max_value=50, value=0, step=1)
+    if offset_shift != 0:
+        ground_line['Offset Station'] = ground_line['Offset Station'] + offset_shift
+
+
+    deck_offset_left = st.number_input("Adjust Bridge Deck Left Station", min_value=-50.0, max_value=50.0, value=0.0, step=0.25)
+    deck_offset_right = st.number_input("Adjust Bridge Deck Right Station", min_value=-50.0, max_value=50.0, value=0.0, step=0.25)
+   
+    bridge_low_chord.at[0,'Bent CL Sta'] += deck_offset_left
+    bridge_low_chord.loc[bridge_low_chord.tail().index,'Bent CL Sta'] += deck_offset_right
+    bridge_high_chord.at[0,'Bent CL Sta'] += deck_offset_left
+    bridge_high_chord.loc[bridge_high_chord.tail().index,'Bent CL Sta'] += deck_offset_right
+    #make a list of keys in structure_data[0] if key is not nan
+    st.write("Use the table below to adjust the structure bent placement if needed. The Bent CL Sta values can be used to shift the piles left or right.")
+    pier_data_dict=st.data_editor(pd.DataFrame(structure_data[0]).T).T
+       
+       
+        
+
+    
+
+
     for year in events[0]:
         if i == 0:
             recur = 0
@@ -159,7 +203,7 @@ if bridge_data is not None:
             wse_station = wse_data['WSE 500yr Station']
             wse_elev = wse_data['WSE 500yr']
         event = events[0][i]
-        st.write("generating data for ", event)
+       
         main_dict = generate_figure(pier_data_dict, 
                         ground_line,
                         scour_data_df, 
@@ -179,8 +223,10 @@ if bridge_data is not None:
                         scourCone_elev_shift,
                         left_abut_match,
                         right_abut_match,
-                        cs_condition_mc)
-        st.write("data generated for ", event)
+                        cs_condition_mc,
+                        smooth_gl,
+                        )
+       
         figure = create_Mainfigure(main_dict, 
                                    event,
                                    all_pile_elements,
