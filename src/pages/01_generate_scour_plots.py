@@ -34,6 +34,8 @@ with st.sidebar:
                             "Is the channel laterally stable?",
                             ("Yes", "No")
                             )
+    cs_condition_mc = st.selectbox("Apply Clear Water or Live Bed Contraction Scour to Main Channel?", ("LB", "CW"))
+    smooth_gl = st.selectbox("Apply smoothing to ground line?", ("Yes", "No"))
     pier_scourCone_shift = st.sidebar.number_input(
                             "Scour Cone Slope Scaler",
                             min_value=0.1,
@@ -168,8 +170,7 @@ if bridge_data is not None:
     st.write("The figures below show the scour data for each recurrence interval. You can download each figure by clicking the download button below each plot.")
     
     events=events.to_numpy()
-    cs_condition_mc = st.selectbox("Apply Clear Water or Live Bed Contraction Scour to Main Channel?", ("LB", "CW"))
-    smooth_gl = st.selectbox("Apply smoothing to ground line?", ("Yes", "No"))
+    
     offset_shift = st.number_input("Adjust stationing shift for groundline", min_value=-50, max_value=50, value=0, step=1)
     if offset_shift != 0:
         ground_line['Offset Station'] = ground_line['Offset Station'] + offset_shift
