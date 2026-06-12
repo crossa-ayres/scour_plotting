@@ -33,12 +33,12 @@ with st.sidebar:
 
     lateral_stability = st.selectbox(
                             "Is the channel laterally stable?",
-                            ("Yes", "No")
+                            ("No","Yes")
                             )
     st.divider()
     cs_condition_mc = st.selectbox("Apply Clear Water or Live Bed Contraction Scour to Main Channel?", ("LB", "CW"))
     st.divider()
-    smooth_gl = st.selectbox("Apply smoothing to ground line? If no, the smoothing coefficient is not applicable.", ("Yes", "No"))
+    smooth_gl = st.selectbox("Apply smoothing to ground line? If no, the smoothing coefficient is not applicable.", ("No","Yes"))
     line_smoothing_coeff = st.sidebar.number_input(
                             "Line Smoothing Coefficient",
                             min_value=0.0,
