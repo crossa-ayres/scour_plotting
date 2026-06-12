@@ -38,8 +38,9 @@ def generate_pier_scour_df(bridge_data):
     """
     
     pier_data_dict = {}
-    events = bridge_data[['scour check title',	
-                          'scour design interval']]
+    events = bridge_data[['scour design interval',
+                          'scour check title'	
+                          ]]
     events = events.dropna()
     try:
         piles = bridge_data[["pile_sta_right_h",

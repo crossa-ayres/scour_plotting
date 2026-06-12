@@ -138,8 +138,11 @@ if bridge_data is not None:
     scour_data_df=  structure_data[4].dropna().reset_index(drop=True)
     
    
-    
-    events= st.data_editor(pd.DataFrame(structure_data[6]).T).T.dropna().reset_index(drop=True)
+    show_table = st.toggle("View Or Edit Scour Event Titles", value=False)
+    if show_table:
+        events= st.data_editor(pd.DataFrame(structure_data[6]).T).T.dropna().reset_index(drop=True)
+    else:
+        events = structure_data[6]
    
     contraction_data= structure_data[7][:2]
     
@@ -149,8 +152,7 @@ if bridge_data is not None:
     all_pile_elements= structure_data[9]
 
     i=0
-    st.header("Scour Figures by Recurrence Interval")
-    st.write("The figures below show the scour data for each recurrence interval. You can download each figure by clicking the download button below each plot.")
+    
     
     events=events.to_numpy()
     
@@ -158,26 +160,37 @@ if bridge_data is not None:
     if offset_shift != 0:
         ground_line['Offset Station'] = ground_line['Offset Station'] + offset_shift
 
-
-    deck_offset_left = st.number_input("Adjust Bridge Deck Left Station", min_value=-50.0, max_value=50.0, value=0.0, step=0.25)
-    deck_offset_right = st.number_input("Adjust Bridge Deck Right Station", min_value=-50.0, max_value=50.0, value=0.0, step=0.25)
+    show_bridge_shift = st.toggle("View Or Edit Bridge Deck Station Shift", value=False)
+    if show_bridge_shift:
+        deck_offset_left = st.number_input("Adjust Bridge Deck Left Station", min_value=-50.0, max_value=50.0, value=0.0, step=0.25)
+        deck_offset_right = st.number_input("Adjust Bridge Deck Right Station", min_value=-50.0, max_value=50.0, value=0.0, step=0.25)
    
-    bridge_low_chord.at[0,'Bent CL Sta'] += deck_offset_left
-    bridge_low_chord.loc[bridge_low_chord.tail().index,'Bent CL Sta'] += deck_offset_right
-    bridge_high_chord.at[0,'Bent CL Sta'] += deck_offset_left
-    bridge_high_chord.loc[bridge_high_chord.tail().index,'Bent CL Sta'] += deck_offset_right
-    #make a list of keys in structure_data[0] if key is not nan
-    st.write("Use the table below to adjust the structure bent placement if needed. The Bent CL Sta values can be used to shift the piles left or right.")
-    pier_data_dict=st.data_editor(pd.DataFrame(structure_data[0]).T).T
-    st.subheader("WSE Data:")
-    wse_data= st.data_editor(pd.DataFrame(structure_data[5][:2]).T).T.dropna().reset_index(drop=True)
+        bridge_low_chord.at[0,'Bent CL Sta'] += deck_offset_left
+        bridge_low_chord.loc[bridge_low_chord.tail().index,'Bent CL Sta'] += deck_offset_right
+        bridge_high_chord.at[0,'Bent CL Sta'] += deck_offset_left
+        bridge_high_chord.loc[bridge_high_chord.tail().index,'Bent CL Sta'] += deck_offset_right
+ 
+    show_pile_data = st.toggle("View Or Edit Structure Information", value=False)
+    if show_pile_data:
+        st.write("Use the table below to adjust the structure bent placement if needed. The Bent CL Sta values can be used to shift the piles left or right.")
+        pier_data_dict=st.data_editor(pd.DataFrame(structure_data[0]).T).T
+    else:
+        pier_data_dict = structure_data[0]
+
+    show_wse_data = st.toggle("View Or Edit WSE Data", value=False)
+    if show_wse_data:
+        st.subheader("WSE Data:")
+        wse_data= st.data_editor(pd.DataFrame(structure_data[5][:2]).T).T.dropna().reset_index(drop=True)
+    else:
+        wse_data = structure_data[5][:2]
        
        
         
 
     
 
-
+    st.header("Scour Figures by Recurrence Interval")
+    st.write("The figures below show the scour data for each recurrence interval. You can download each figure by clicking the download button below each plot.")
     for year in events[0]:
         if i == 0:
             recur = 0
