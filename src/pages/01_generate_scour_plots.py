@@ -46,6 +46,7 @@ with st.sidebar:
                             value=(0.5),step = 0.05 # default range
                             )
     st.divider()
+    
     pier_scourCone_shift = st.sidebar.number_input(
                             "Scour Cone Slope Scaler",
                             min_value=0.1,
@@ -138,11 +139,8 @@ if bridge_data is not None:
     scour_data_df=  structure_data[4].dropna().reset_index(drop=True)
     
    
-    show_table = st.toggle("View Or Edit Scour Event Titles", value=False)
-    if show_table:
+    with st.expander("View Or Edit Scour Event Titles"):
         events= st.data_editor(pd.DataFrame(structure_data[6]).T).T.dropna().reset_index(drop=True)
-    else:
-        events = structure_data[6]
    
     contraction_data= structure_data[7][:2]
     
@@ -155,34 +153,29 @@ if bridge_data is not None:
     
     
     events=events.to_numpy()
-    
-    offset_shift = st.number_input("Adjust stationing shift for groundline", min_value=-50, max_value=50, value=0, step=1)
+    with st.expander("View Or Edit Ground Line Station Shift"):
+        offset_shift = st.number_input("Adjust stationing shift for groundline", min_value=-50, max_value=50, value=0, step=1)
     if offset_shift != 0:
         ground_line['Offset Station'] = ground_line['Offset Station'] + offset_shift
 
-    show_bridge_shift = st.toggle("View Or Edit Bridge Deck Station Shift", value=False)
-    if show_bridge_shift:
+    with st.expander("View Or Edit Bridge Deck Station Shift"):
+    
         deck_offset_left = st.number_input("Adjust Bridge Deck Left Station", min_value=-50.0, max_value=50.0, value=0.0, step=0.25)
         deck_offset_right = st.number_input("Adjust Bridge Deck Right Station", min_value=-50.0, max_value=50.0, value=0.0, step=0.25)
-   
+
         bridge_low_chord.at[0,'Bent CL Sta'] += deck_offset_left
         bridge_low_chord.loc[bridge_low_chord.tail().index,'Bent CL Sta'] += deck_offset_right
         bridge_high_chord.at[0,'Bent CL Sta'] += deck_offset_left
         bridge_high_chord.loc[bridge_high_chord.tail().index,'Bent CL Sta'] += deck_offset_right
  
-    show_pile_data = st.toggle("View Or Edit Structure Information", value=False)
-    if show_pile_data:
+    with st.expander("View Or Edit Structure Information"):
         st.write("Use the table below to adjust the structure bent placement if needed. The Bent CL Sta values can be used to shift the piles left or right.")
         pier_data_dict=st.data_editor(pd.DataFrame(structure_data[0]).T).T
-    else:
-        pier_data_dict = structure_data[0]
 
-    show_wse_data = st.toggle("View Or Edit WSE Data", value=False)
-    if show_wse_data:
+    with st.expander("View Or Edit WSE Data"):
         st.subheader("WSE Data:")
         wse_data= st.data_editor(pd.DataFrame(structure_data[5][:2]).T).T.dropna().reset_index(drop=True)
-    else:
-        wse_data = structure_data[5][:2]
+
        
        
         
