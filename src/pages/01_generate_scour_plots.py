@@ -43,7 +43,7 @@ with st.sidebar:
                             "Line Smoothing Coefficient",
                             min_value=0.0,
                             max_value=10.0,
-                            value=(0.5),step = 0.1 # default range
+                            value=(0.5),step = 0.05 # default range
                             )
     st.divider()
     pier_scourCone_shift = st.sidebar.number_input(
